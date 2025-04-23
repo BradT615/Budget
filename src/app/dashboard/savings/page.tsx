@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@/utils/supabase/server'
 import DashboardLayout from "@/components/layout/dashboard-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,7 +7,7 @@ import SavingsGoalsList from "./components/savings-goals-list";
 import AddSavingsGoalDialog from "./components/add-savings-goal-dialog";
 
 export default async function SavingsPage() {
-  const supabase = createClient()
+  const supabase = await createClient()
   
   // Get the authenticated user
   const { data: { user } } = await supabase.auth.getUser()

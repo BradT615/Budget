@@ -1,4 +1,3 @@
-// src/app/dashboard/admin/page.tsx
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import DashboardLayout from "@/components/layout/dashboard-layout";
@@ -16,14 +15,16 @@ export default async function AdminPage() {
   }
   
   // Check if the user is an admin using the is_admin function
-  const { data, error } = await supabase.rpc('is_admin', {
+  const { data: isAdmin, error } = await supabase.rpc('is_admin', {
     user_id: user.id
   })
   
-  const isAdmin = !!data
+  if (error) {
+    console.error('Error checking admin status:', error)
+  }
   
+  // Redirect non-admin users to dashboard
   if (!isAdmin) {
-    // Redirect non-admin users to dashboard
     redirect('/dashboard')
   }
   
@@ -34,9 +35,9 @@ export default async function AdminPage() {
           <h1 className="text-3xl font-bold">Admin Panel</h1>
         </div>
         
+        {/* The components handle data fetching internally */}
         <EmailWhitelistManager />
-        
-        <AdminUsersManager currentAdmin={user.id} />
+        <AdminUsersManager />
       </div>
     </DashboardLayout>
   );

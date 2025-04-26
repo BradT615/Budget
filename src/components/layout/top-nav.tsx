@@ -5,6 +5,7 @@ import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { Menu } from "lucide-react";
 import { useEffect, useState } from "react";
+import { ThemeToggle } from "../theme-toggle";
 
 export default function TopNav() {
   const router = useRouter();
@@ -40,6 +41,7 @@ export default function TopNav() {
               {user.email}
             </div>
           )}
+          <ThemeToggle/>
           <Button variant="outline" onClick={handleLogout}>
             Sign Out
           </Button>

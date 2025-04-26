@@ -1,0 +1,9 @@
+<svg viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg">
+  <!-- Parent container with rounded corners -->
+  <rect x="0" y="0" width="280" height="280" rx="15" ry="15" fill="#18181b" stroke="none"/>
+  
+  <!-- Three bars with growth and rounded corners - with consistent spacing -->
+  <rect x="30" y="180" width="60" height="70" rx="8" ry="8" fill="#8b5cf6"/>
+  <rect x="110" y="130" width="60" height="120" rx="8" ry="8" fill="#8b5cf6"/>
+  <rect x="190" y="30" width="60" height="220" rx="8" ry="8" fill="#8b5cf6"/>
+</svg>

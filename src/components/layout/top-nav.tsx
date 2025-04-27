@@ -52,7 +52,7 @@ export default function TopNav() {
       <div className="flex h-16 items-center justify-between px-4">
         <div className="flex items-center space-x-2">
           <Image 
-            src="/logo.svg" 
+            src="/icon.svg" 
             alt="Budget Tracker Logo" 
             width={32} 
             height={32} 

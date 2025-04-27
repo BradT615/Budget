@@ -16,7 +16,7 @@ export default async function LoginPage() {
       {/* Logo */}
       <div className="mb-8 flex flex-col items-center">
         <img
-          src="/logo.svg"
+          src="/icon.svg"
           alt="Logo"
           className="w-24 h-24 text-primary"
         />

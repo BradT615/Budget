@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:svgjs="http://svgjs.dev/svgjs" width="32" height="32"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Three bars (simplified) -->
+  <rect class="logo-bar-1" x="4" y="22" width="6" height="6" rx="1" ry="1" fill="#5b61c5"></rect>
+  <rect class="logo-bar-2" x="13" y="16" width="6" height="12" rx="1" ry="1" fill="#5b61c5"></rect>
+  <rect class="logo-bar-3" x="22" y="4" width="6" height="24" rx="1" ry="1" fill="#5b61c5"></rect>
+  
+  <!-- Dark mode styles -->
+  <style>
+    @media (prefers-color-scheme: dark) {
+      .logo-bar-1, .logo-bar-2, .logo-bar-3 { fill: #6b71d5; }
+    }
+  </style>
+</svg><style>@media (prefers-color-scheme: light) { :root { filter: none; } }
+@media (prefers-color-scheme: dark) { :root { filter: none; } }
+</style></svg>

@@ -1,3 +1,4 @@
+// src/app/auth/callback/route.ts
 import { NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
 
@@ -21,9 +22,12 @@ export async function GET(request: Request) {
       } else {
         return NextResponse.redirect(`${origin}${next}`)
       }
+    } else {
+      console.error('Auth error:', error.message)
+      return NextResponse.redirect(`${origin}/auth/auth-code-error?error=${encodeURIComponent(error.message)}`)
     }
   }
 
-  // return the user to an error page with instructions
+  // return the user to the error page with instructions
   return NextResponse.redirect(`${origin}/auth/auth-code-error`)
 }

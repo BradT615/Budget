@@ -41,7 +41,7 @@ export default async function LoginPage() {
 
       {/* Creator Credit */}
       <div className="mt-12 text-center text-md text-muted-foreground">
-        Created by <a href="https://www.linkedin.com/in/bradt615/" target="_blank" rel="noopener noreferrer" className="underline hover:text-primary">Bradley Titus</a>
+        Created by <a href="https://www.linkedin.com/in/bradt615/" target="_blank" rel="noopener noreferrer" className="underline hover:text-primary">Brad</a>
       </div>
     </div>
   );

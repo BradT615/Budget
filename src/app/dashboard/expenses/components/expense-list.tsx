@@ -1,7 +1,7 @@
+// src/app/dashboard/expenses/components/expense-list.tsx
 "use client";
 
 import { useEffect, useState } from "react";
-import { createClient } from "@/utils/supabase/client";
 import {
   Table,
   TableBody,
@@ -12,130 +12,99 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash2 } from "lucide-react";
+import { Expense, deleteExpense } from "../actions/expenses";
+import EditExpenseDialog from "./edit-expense-dialog";
+import { useRouter } from "next/navigation";
 
-type Expense = {
-  id: string;
-  amount: number;
-  description: string;
-  date: string;
+type ExpenseListProps = {
+  expenses: Expense[];
 };
 
-export default function ExpenseList({ userId }: { userId?: string }) {
-  const [expenses, setExpenses] = useState<Expense[]>([]);
-  const [loading, setLoading] = useState(true);
-  const supabase = createClient();
-
-  useEffect(() => {
-    const fetchExpenses = async () => {
-      setLoading(true);
-      
-      if (userId) {
-        // In a real app, you would fetch data from Supabase
-        // const { data } = await supabase
-        //   .from('expenses')
-        //   .select('*')
-        //   .eq('user_id', userId)
-        //   .order('date', { ascending: false });
-        
-        // setExpenses(data || []);
-      }
-      
-      // For demo purposes, we'll use dummy data
-      const demoExpenses: Expense[] = [
-        {
-          id: '1',
-          amount: 950,
-          description: 'Rent',
-          date: '2025-04-01'
-        },
-        {
-          id: '2',
-          amount: 120,
-          description: 'Groceries',
-          date: '2025-04-05'
-        },
-        {
-          id: '3',
-          amount: 45,
-          description: 'Dinner',
-          date: '2025-04-10'
-        },
-        {
-          id: '4',
-          amount: 35,
-          description: 'Transportation',
-          date: '2025-04-15'
-        }
-      ];
-      
-      setExpenses(demoExpenses);
-      setLoading(false);
-    };
-
-    fetchExpenses();
-  }, [userId, supabase]);
+export default function ExpenseList({ expenses }: ExpenseListProps) {
+  const [loading, setLoading] = useState(false);
+  const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
+  const router = useRouter();
 
   const handleDelete = async (id: string) => {
+    setLoading(true);
     try {
-      // In a real app, you would delete from Supabase
-      // await supabase
-      //   .from('expenses')
-      //   .delete()
-      //   .eq('id', id)
-      //   .eq('user_id', userId);
+      const formData = new FormData();
+      formData.append('id', id);
       
-      // For demo purposes, we'll just update the state
-      setExpenses(expenses.filter(expense => expense.id !== id));
+      const result = await deleteExpense(formData);
+      
+      if (!result.success) {
+        console.error("Failed to delete expense:", result.error);
+        // You could also show a toast notification here
+      }
+      
+      router.refresh();
     } catch (error) {
       console.error('Error deleting expense:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  if (loading) {
-    return <div>Loading expense data...</div>;
-  }
-
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Description</TableHead>
-          <TableHead>Amount</TableHead>
-          <TableHead>Date</TableHead>
-          <TableHead className="text-right">Actions</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {expenses.length === 0 ? (
+    <>
+      {editingExpense && (
+        <EditExpenseDialog
+          expense={editingExpense}
+          open={!!editingExpense}
+          onOpenChange={(open) => {
+            if (!open) setEditingExpense(null);
+          }}
+        />
+      )}
+      
+      <Table>
+        <TableHeader>
           <TableRow>
-            <TableCell colSpan={4} className="text-center">
-              No expense entries found.
-            </TableCell>
+            <TableHead>Description</TableHead>
+            <TableHead>Amount</TableHead>
+            <TableHead>Date</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
           </TableRow>
-        ) : (
-          expenses.map((expense) => (
-            <TableRow key={expense.id}>
-              <TableCell>{expense.description}</TableCell>
-              <TableCell>${expense.amount.toFixed(2)}</TableCell>
-              <TableCell>{new Date(expense.date).toLocaleDateString()}</TableCell>
-              <TableCell className="text-right">
-                <div className="flex justify-end space-x-2">
-                  <Button variant="ghost" size="icon">
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    onClick={() => handleDelete(expense.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
+        </TableHeader>
+        <TableBody>
+          {expenses.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={4} className="text-center">
+                No expense entries found.
               </TableCell>
             </TableRow>
-          ))
-        )}
-      </TableBody>
-    </Table>
+          ) : (
+            expenses.map((expense) => (
+              <TableRow key={expense.id}>
+                <TableCell>{expense.description}</TableCell>
+                <TableCell>${expense.amount.toFixed(2)}</TableCell>
+                <TableCell>{new Date(expense.date).toLocaleDateString()}</TableCell>
+                <TableCell className="text-right">
+                  <div className="flex justify-end space-x-2">
+                    <Button 
+                      variant="ghost" 
+                      size="icon"
+                      onClick={() => setEditingExpense(expense)}
+                      disabled={loading}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      onClick={() => handleDelete(expense.id)}
+                      disabled={loading}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
+        </TableBody>
+      </Table>
+    </>
   );
 }

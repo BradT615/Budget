@@ -1,4 +1,4 @@
-// src/app/dashboard/expenses/components/add-expense-dialog.tsx
+// src/app/dashboard/expenses/components/edit-expense-dialog.tsx
 "use client";
 
 import { useState } from "react";
@@ -8,7 +8,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -19,31 +18,32 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { CalendarIcon } from "lucide-react";
-import { format } from "date-fns";
+import { format, parse } from "date-fns";
 import { cn } from "@/utils/utils";
 import { useRouter } from "next/navigation";
-import { addExpense } from "../actions/expenses";
+import { Expense, updateExpense } from "../actions/expenses";
 
-export default function AddExpenseDialog({ 
-  children 
-}: { 
-  children: React.ReactNode 
-}) {
-  const [open, setOpen] = useState(false);
-  const [description, setDescription] = useState("");
-  const [amount, setAmount] = useState("");
-  const [date, setDate] = useState<Date | undefined>(new Date());
-  const [calendarOpen, setCalendarOpen] = useState(false);
+interface EditExpenseDialogProps {
+  expense: Expense;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+export default function EditExpenseDialog({ 
+  expense, 
+  open, 
+  onOpenChange 
+}: EditExpenseDialogProps) {
+  const [description, setDescription] = useState(expense.description);
+  const [amount, setAmount] = useState(expense.amount.toString());
+  const [date, setDate] = useState<Date>(
+    typeof expense.date === 'string' 
+      ? parse(expense.date, 'yyyy-MM-dd', new Date()) 
+      : new Date(expense.date)
+  );
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
-
-  const resetForm = () => {
-    setDescription("");
-    setAmount("");
-    setDate(new Date());
-    setError(null);
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,23 +58,23 @@ export default function AddExpenseDialog({
     
     try {
       const formData = new FormData();
+      formData.append('id', expense.id);
       formData.append('description', description);
       formData.append('amount', amount);
       formData.append('date', format(date, 'yyyy-MM-dd'));
       
-      const result = await addExpense(formData);
+      const result = await updateExpense(formData);
       
       if (!result.success) {
-        setError(result.error?.message || "Failed to add expense");
+        setError(result.error?.message || "Failed to update expense");
         return;
       }
       
       // Success
-      resetForm();
-      setOpen(false);
+      onOpenChange(false);
       router.refresh();
     } catch (err) {
-      console.error('Error adding expense:', err);
+      console.error('Error updating expense:', err);
       setError("An unexpected error occurred");
     } finally {
       setIsSubmitting(false);
@@ -82,26 +82,17 @@ export default function AddExpenseDialog({
   };
 
   return (
-    <Dialog 
-      open={open} 
-      onOpenChange={(newOpen) => {
-        if (!newOpen) {
-          resetForm();
-        }
-        setOpen(newOpen);
-      }}
-    >
-      <DialogTrigger asChild>{children}</DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Add Expense</DialogTitle>
+          <DialogTitle>Edit Expense</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 py-4">
           {error && (
-            <div className="text-red-600 text-sm mb-2">{error}</div>
+            <div className="text-red-600 text-sm">{error}</div>
           )}
           <div className="space-y-2">
-            <Label htmlFor="description" className="mb-2 block">Description</Label>
+            <Label htmlFor="description">Description</Label>
             <Input
               id="description"
               value={description}
@@ -112,7 +103,7 @@ export default function AddExpenseDialog({
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="amount" className="mb-2 block">Amount</Label>
+            <Label htmlFor="amount">Amount</Label>
             <Input
               id="amount"
               type="number"
@@ -125,9 +116,9 @@ export default function AddExpenseDialog({
               disabled={isSubmitting}
             />
           </div>
-          <div className="space-y-3">
-            <Label className="mb-1.5 block">Date</Label>
-            <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+          <div className="space-y-2">
+            <Label>Date</Label>
+            <Popover>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
@@ -145,25 +136,26 @@ export default function AddExpenseDialog({
                 <Calendar
                   mode="single"
                   selected={date}
-                  onSelect={(newDate) => {
-                    if (newDate) {
-                      setDate(newDate);
-                      // Force close the calendar immediately
-                      setTimeout(() => setCalendarOpen(false), 0);
-                    }
-                  }}
+                  onSelect={(date) => date && setDate(date)}
                   initialFocus
-                  className="pointer-events-auto"
                 />
               </PopoverContent>
             </Popover>
           </div>
-          <div className="flex justify-end pt-4">
+          <div className="flex justify-end space-x-2 pt-4">
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => onOpenChange(false)}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
             <Button 
               type="submit"
               disabled={isSubmitting}
             >
-              {isSubmitting ? "Adding..." : "Add Expense"}
+              {isSubmitting ? "Updating..." : "Update Expense"}
             </Button>
           </div>
         </form>

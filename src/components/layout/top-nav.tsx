@@ -3,8 +3,17 @@
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
-import { Menu } from "lucide-react";
 import { useEffect, useState } from "react";
+import Image from "next/image";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Settings, LogOut, Paintbrush } from "lucide-react";
 import { ThemeToggle } from "../theme-toggle";
 
 export default function TopNav() {
@@ -26,25 +35,87 @@ export default function TopNav() {
     router.refresh(); // Refresh the page to update auth state
   };
 
+  // Get user initials for avatar fallback
+  const getUserInitials = () => {
+    if (!user || !user.email) return "?";
+    return user.email
+      .split("@")[0]
+      .split(".")
+      .map((n: string) => n[0])
+      .join("")
+      .toUpperCase()
+      .substring(0, 2);
+  };
+
   return (
     <div className="border-b">
       <div className="flex h-16 items-center justify-between px-4">
-        <div className="flex items-center md:hidden">
-          <Button variant="ghost" size="icon">
-            <Menu className="h-6 w-6" />
-          </Button>
+        <div className="flex items-center space-x-2">
+          <Image 
+            src="/logo.svg" 
+            alt="Budget Tracker Logo" 
+            width={32} 
+            height={32} 
+          />
+          <span className="text-lg font-semibold">Budget Tracker</span>
         </div>
-        <div className="flex-1" />
         <div className="flex items-center gap-4">
           {user && (
-            <div className="text-sm mr-4">
-              {user.email}
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                  <Avatar className="h-10 w-10">
+                    <AvatarImage src={user.user_metadata?.avatar_url} alt="User" />
+                    <AvatarFallback className="bg-primary/10 text-foreground font-medium">
+                      {getUserInitials()}
+                    </AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-64">
+                {/* User Info */}
+                <div className="px-4 py-3">
+                  <p className="font-medium text-sm">Account</p>
+                  <p className="text-xs text-muted-foreground truncate">
+                    {user.email || "user@example.com"}
+                  </p>
+                </div>
+                
+                <DropdownMenuSeparator />
+                
+                {/* Account Settings */}
+                <DropdownMenuItem 
+                  className="py-2 cursor-pointer hover:bg-accent"
+                  onClick={() => router.push('/dashboard/settings')}
+                >
+                  <Settings className="mr-2 h-4 w-4" />
+                  Account Settings
+                </DropdownMenuItem>
+                
+                <DropdownMenuSeparator />
+                
+                {/* Theme Toggle */}
+                <div className="p-1">
+                  <div className="flex items-center px-2 py-1.5 text-sm">
+                    <Paintbrush className="mr-2 h-4 w-4" />
+                    <span>Theme</span>
+                    <ThemeToggle className="ml-auto" />
+                  </div>
+                </div>
+                
+                <DropdownMenuSeparator />
+                
+                {/* Logout */}
+                <DropdownMenuItem 
+                  className="py-2 cursor-pointer flex items-center hover:bg-accent"
+                  onClick={handleLogout}
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Log Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           )}
-          <ThemeToggle/>
-          <Button variant="outline" onClick={handleLogout}>
-            Sign Out
-          </Button>
         </div>
       </div>
     </div>

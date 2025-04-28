@@ -41,6 +41,7 @@ export default function EditExpenseDialog({
       ? parse(expense.date, 'yyyy-MM-dd', new Date()) 
       : new Date(expense.date)
   );
+  const [calendarOpen, setCalendarOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
@@ -83,16 +84,16 @@ export default function EditExpenseDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md rounded-md">
         <DialogHeader>
           <DialogTitle>Edit Expense</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 py-4">
           {error && (
-            <div className="text-red-600 text-sm">{error}</div>
+            <div className="text-red-600 text-sm mb-2">{error}</div>
           )}
           <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description" className="mb-2 block">Description</Label>
             <Input
               id="description"
               value={description}
@@ -103,7 +104,7 @@ export default function EditExpenseDialog({
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="amount">Amount</Label>
+            <Label htmlFor="amount" className="mb-2 block">Amount</Label>
             <Input
               id="amount"
               type="number"
@@ -116,9 +117,9 @@ export default function EditExpenseDialog({
               disabled={isSubmitting}
             />
           </div>
-          <div className="space-y-2">
-            <Label>Date</Label>
-            <Popover>
+          <div className="space-y-3">
+            <Label className="mb-1.5 block">Date</Label>
+            <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
@@ -136,21 +137,20 @@ export default function EditExpenseDialog({
                 <Calendar
                   mode="single"
                   selected={date}
-                  onSelect={(date) => date && setDate(date)}
+                  onSelect={(newDate) => {
+                    if (newDate) {
+                      setDate(newDate);
+                      // Force close the calendar immediately
+                      setTimeout(() => setCalendarOpen(false), 0);
+                    }
+                  }}
                   initialFocus
+                  className="pointer-events-auto"
                 />
               </PopoverContent>
             </Popover>
           </div>
-          <div className="flex justify-end space-x-2 pt-4">
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={() => onOpenChange(false)}
-              disabled={isSubmitting}
-            >
-              Cancel
-            </Button>
+          <div className="flex justify-end pt-4">
             <Button 
               type="submit"
               disabled={isSubmitting}

@@ -81,9 +81,6 @@ export default function Sidebar() {
       <div className="hidden border-r bg-background md:block md:w-64">
         <div className="flex h-full flex-col px-4">
           <div className="space-y-4 py-4">
-            <div className="px-3 py-2">
-              <h2 className="mb-2 px-4 text-lg font-semibold">Budget Tracker</h2>
-            </div>
             <div className="animate-pulse">
               {[...Array(5)].map((_, i) => (
                 <div
@@ -102,9 +99,6 @@ export default function Sidebar() {
     <div className="hidden border-r bg-background md:block md:w-64">
       <div className="flex h-full flex-col px-4">
         <div className="space-y-4 py-4">
-          <div className="px-3 py-2">
-            <h2 className="mb-2 px-4 text-lg font-semibold">Budget Tracker</h2>
-          </div>
           <nav className="space-y-1">
             {navItems.map((item) => {
               const isActive = pathname === item.href;

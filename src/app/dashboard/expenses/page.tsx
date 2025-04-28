@@ -15,11 +15,11 @@ export default async function ExpensesPage() {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold">Expenses</h1>
+        <div className="flex items-center justify-between pt-6 px-6">
+          <h1 className="text-2xl sm:text-3xl font-bold">Expenses</h1>
           <AddExpenseDialog>
-            <Button>
-              <PlusCircle className="mr-2 h-4 w-4" />
+            <Button className='text-sm sm:text-md'>
+              <PlusCircle className="mr-1 sm:mr-2 text-md sm:text-lg h-3 w-3 sm:h-4 sm:w-4" />
               Add Expense
             </Button>
           </AddExpenseDialog>
@@ -31,11 +31,8 @@ export default async function ExpensesPage() {
           </div>
         )}
         
-        <Card>
-          <CardHeader>
-            <CardTitle>Expense Entries</CardTitle>
-          </CardHeader>
-          <CardContent>
+        <Card className='m-3 sm:m-6'>
+          <CardContent className='pt-4'>
             <ExpenseList expenses={expenses || []} />
           </CardContent>
         </Card>

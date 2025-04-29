@@ -1,3 +1,4 @@
+// src/app/dashboard/income/page.tsx
 import { createClient } from '@/utils/supabase/server'
 import DashboardLayout from "@/components/layout/dashboard-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -5,32 +6,34 @@ import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 import IncomeList from "./components/income-list";
 import AddIncomeDialog from "./components/add-income-dialog";
+import { getIncomes } from "./actions/income";
 
 export default async function IncomePage() {
-  const supabase = await createClient()
-  
-  // Get the authenticated user
-  const { data: { user } } = await supabase.auth.getUser()
+  // Get income data
+  const { data: incomes, error } = await getIncomes();
   
   return (
     <DashboardLayout>
       <div className="space-y-6">
         <div className="flex items-center justify-between pt-6 px-6">
-          <h1 className="text-3xl font-bold">Income</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold">Income</h1>
           <AddIncomeDialog>
-            <Button>
-              <PlusCircle className="mr-2 h-4 w-4" />
+            <Button className='text-sm sm:text-md'>
+              <PlusCircle className="mr-1 sm:mr-2 text-md sm:text-lg h-3 w-3 sm:h-4 sm:w-4" />
               Add Income
             </Button>
           </AddIncomeDialog>
         </div>
         
+        {error && (
+          <div className="bg-red-100 text-red-700 p-4 rounded-md">
+            Error loading income data: {error.message}
+          </div>
+        )}
+        
         <Card className='m-3 sm:m-6'>
-          <CardHeader>
-            <CardTitle>Income Entries</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <IncomeList userId={user?.id} />
+          <CardContent className='pt-4'>
+            <IncomeList incomes={incomes || []} />
           </CardContent>
         </Card>
       </div>

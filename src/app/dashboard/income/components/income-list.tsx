@@ -1,7 +1,7 @@
+// src/app/dashboard/income/components/income-list.tsx
 "use client";
 
-import { useEffect, useState } from "react";
-import { createClient } from "@/utils/supabase/client";
+import React, { useState, useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -11,125 +11,200 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, ChevronDown, Calendar, DollarSign } from "lucide-react";
+import { useRouter } from "next/navigation";
+import EditIncomeDialog from "./edit-income-dialog";
+import { Income, deleteIncome } from "../actions/income";
 
-type Income = {
-  id: string;
-  amount: number;
-  source: string;
-  date: string;
+type IncomeListProps = {
+  incomes: Income[];
 };
 
-export default function IncomeList({ userId }: { userId?: string }) {
-  const [incomes, setIncomes] = useState<Income[]>([]);
-  const [loading, setLoading] = useState(true);
-  const supabase = createClient();
+export default function IncomeList({ incomes }: IncomeListProps) {
+  const [loading, setLoading] = useState(false);
+  const [editingIncome, setEditingIncome] = useState<Income | null>(null);
+  const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
+  const [windowWidth, setWindowWidth] = useState<number>(typeof window !== 'undefined' ? window.innerWidth : 1024);
+  const router = useRouter();
 
+  // Track window width for responsive behavior
   useEffect(() => {
-    const fetchIncomes = async () => {
-      setLoading(true);
-      
-      if (userId) {
-        // In a real app, you would fetch data from Supabase
-        // const { data } = await supabase
-        //   .from('income')
-        //   .select('*')
-        //   .eq('user_id', userId)
-        //   .order('date', { ascending: false });
-        
-        // setIncomes(data || []);
-      }
-      
-      // For demo purposes, we'll use dummy data
-      const demoIncomes: Income[] = [
-        {
-          id: '1',
-          amount: 3000,
-          source: 'Salary',
-          date: '2025-04-01'
-        },
-        {
-          id: '2',
-          amount: 500,
-          source: 'Freelance',
-          date: '2025-04-10'
-        },
-        {
-          id: '3',
-          amount: 100,
-          source: 'Dividend',
-          date: '2025-04-15'
-        }
-      ];
-      
-      setIncomes(demoIncomes);
-      setLoading(false);
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
     };
 
-    fetchIncomes();
-  }, [userId, supabase]);
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  const isMobile = windowWidth < 768;
 
   const handleDelete = async (id: string) => {
+    setLoading(true);
     try {
-      // In a real app, you would delete from Supabase
-      // await supabase
-      //   .from('income')
-      //   .delete()
-      //   .eq('id', id)
-      //   .eq('user_id', userId);
+      const formData = new FormData();
+      formData.append('id', id);
       
-      // For demo purposes, we'll just update the state
-      setIncomes(incomes.filter(income => income.id !== id));
+      const result = await deleteIncome(formData);
+      
+      if (!result.success) {
+        console.error("Failed to delete income:", result.error);
+      }
+      
+      router.refresh();
     } catch (error) {
       console.error('Error deleting income:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  if (loading) {
-    return <div>Loading income data...</div>;
-  }
+  const toggleRow = (id: string) => {
+    setExpandedRows(prev => ({
+      ...prev,
+      [id]: !prev[id]
+    }));
+  };
+
+  // Format currency
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2
+    }).format(amount);
+  };
+
+  // Format date
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return `${date.toLocaleString('default', { month: 'short' })} ${date.getDate()}, ${date.getFullYear()}`;
+  };
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Source</TableHead>
-          <TableHead>Amount</TableHead>
-          <TableHead>Date</TableHead>
-          <TableHead className="text-right">Actions</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {incomes.length === 0 ? (
-          <TableRow>
-            <TableCell colSpan={4} className="text-center">
-              No income entries found.
-            </TableCell>
-          </TableRow>
-        ) : (
-          incomes.map((income) => (
-            <TableRow key={income.id}>
-              <TableCell>{income.source}</TableCell>
-              <TableCell>${income.amount.toFixed(2)}</TableCell>
-              <TableCell>{new Date(income.date).toLocaleDateString()}</TableCell>
-              <TableCell className="text-right">
-                <div className="flex justify-end space-x-2">
-                  <Button variant="ghost" size="icon">
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    onClick={() => handleDelete(income.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </TableCell>
+    <>
+      {editingIncome && (
+        <EditIncomeDialog
+          income={editingIncome}
+          open={!!editingIncome}
+          onOpenChange={(open) => {
+            if (!open) setEditingIncome(null);
+          }}
+        />
+      )}
+      
+      <div className="w-full -mx-1 sm:mx-0">
+        <Table className="w-full table-fixed">
+          <TableHeader>
+            <TableRow className="hover:bg-transparent">
+              <TableHead className="text-base font-medium px-2 sm:px-4 py-3 w-[75%] sm:w-[40%]">Source</TableHead>
+              {!isMobile && (
+                <>
+                  <TableHead className="text-base font-medium text-right w-[20%] px-2 sm:px-4 py-3">Amount</TableHead>
+                  <TableHead className="text-base font-medium text-center w-[25%] min-w-[100px] px-2 sm:px-4 py-3">Date</TableHead>
+                </>
+              )}
+              <TableHead className="text-base font-medium text-right w-[25%] sm:w-[15%] px-2 sm:px-4 py-3">Actions</TableHead>
             </TableRow>
-          ))
-        )}
-      </TableBody>
-    </Table>
+          </TableHeader>
+          <TableBody>
+            {incomes.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={isMobile ? 2 : 4} className="text-center py-8 text-base text-muted-foreground">
+                  No income entries found.
+                </TableCell>
+              </TableRow>
+            ) : (
+              incomes.map((income) => (
+                <React.Fragment key={income.id}>
+                  <TableRow className="border-b">
+                    <TableCell className="text-base px-2 sm:px-4 py-3 sm:py-4">
+                      <div className="flex items-center gap-1 sm:gap-2">
+                        {isMobile && (
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-7 w-7 p-0 min-w-0"
+                            onClick={() => toggleRow(income.id)}
+                          >
+                            <ChevronDown 
+                              className={`h-4 w-4 transition-transform duration-200 ${
+                                expandedRows[income.id] ? 'transform rotate-180' : ''
+                              }`} 
+                            />
+                          </Button>
+                        )}
+                        <div className={`truncate ${isMobile ? 'max-w-full' : 'max-w-[250px] sm:max-w-[200px] md:max-w-[250px] lg:max-w-[350px]'}`} title={income.source}>
+                          {income.source}
+                        </div>
+                      </div>
+                    </TableCell>
+                    
+                    {!isMobile && (
+                      <>
+                        <TableCell className="text-base px-2 sm:px-4 py-3 sm:py-4 text-right">
+                          <span className="text-green-600 font-medium">
+                            {formatCurrency(income.amount)}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-base px-2 sm:px-4 py-3 sm:py-4 text-center whitespace-nowrap min-w-[120px]">
+                          {formatDate(income.date)}
+                        </TableCell>
+                      </>
+                    )}
+                    
+                    <TableCell className="text-base px-2 sm:px-4 py-3 sm:py-4 text-right">
+                      <div className="flex justify-end">
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          onClick={() => setEditingIncome(income)}
+                          disabled={loading}
+                          className="h-8 w-8 mr-1 p-0 min-w-0"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          onClick={() => handleDelete(income.id)}
+                          disabled={loading}
+                          className="h-8 w-8 text-red-500 hover:text-red-600 p-0 min-w-0"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                  
+                  {isMobile && expandedRows[income.id] && (
+                    <TableRow className="bg-muted/30">
+                      <TableCell colSpan={2} className="px-2 sm:px-4 py-2">
+                        <div className="flex flex-col space-y-1.5">
+                          <div className="flex items-center text-sm">
+                            <DollarSign className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
+                            <span className="font-medium mr-1.5">Amount:</span>
+                            <span className="text-green-600 font-medium">
+                              {formatCurrency(income.amount)}
+                            </span>
+                          </div>
+                          <div className="flex items-center text-sm">
+                            <Calendar className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
+                            <span className="font-medium mr-1.5">Date:</span>
+                            <span>{formatDate(income.date)}</span>
+                          </div>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </React.Fragment>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
+    </>
   );
 }

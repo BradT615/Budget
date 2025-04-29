@@ -28,7 +28,7 @@ export default async function DashboardPage() {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between pt-6 px-6">
           <h1 className="text-3xl font-bold">Dashboard</h1>
           {user && (
             <p className="text-muted-foreground">
@@ -37,7 +37,7 @@ export default async function DashboardPage() {
           )}
         </div>
         
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 m-3 sm:m-6">
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -83,7 +83,7 @@ export default async function DashboardPage() {
           </Card>
         </div>
         
-        <Tabs defaultValue="weekly">
+        <Tabs defaultValue="weekly" className='m-3 sm:m-6'>
           <TabsList>
             <TabsTrigger value="weekly">Weekly</TabsTrigger>
             <TabsTrigger value="monthly">Monthly</TabsTrigger>

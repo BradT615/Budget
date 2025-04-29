@@ -96,7 +96,7 @@ export default function EmailWhitelistManagerClient({ emails }: {
   };
 
   return (
-    <Card>
+    <Card className="m-3 sm:m-6">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Email Whitelist</CardTitle>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>

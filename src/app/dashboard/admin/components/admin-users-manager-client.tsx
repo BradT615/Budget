@@ -104,7 +104,7 @@ export default function AdminUsersManagerClient({
   };
 
   return (
-    <Card>
+    <Card className="m-3 sm:m-6">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Admin Users</CardTitle>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>

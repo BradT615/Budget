@@ -13,13 +13,18 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Settings, LogOut, Paintbrush } from "lucide-react";
+import { Menu, Settings, LogOut, Paintbrush } from "lucide-react";
 import { ThemeToggle } from "../theme-toggle";
 
-export default function TopNav() {
+interface TopNavProps {
+  toggleSidebar?: () => void;
+}
+
+export default function TopNav({ toggleSidebar }: TopNavProps) {
   const router = useRouter();
   const supabase = createClient();
   const [user, setUser] = useState<any>(null);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     const getUser = async () => {
@@ -28,6 +33,18 @@ export default function TopNav() {
     };
 
     getUser();
+
+    // Check if mobile
+    const checkIfMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkIfMobile();
+    window.addEventListener('resize', checkIfMobile);
+    
+    return () => {
+      window.removeEventListener('resize', checkIfMobile);
+    };
   }, [supabase]);
 
   const handleLogout = async () => {
@@ -51,6 +68,16 @@ export default function TopNav() {
     <div className="border-b">
       <div className="flex h-16 items-center justify-between px-4">
         <div className="flex items-center space-x-2">
+          {isMobile && (
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={toggleSidebar}
+              className="md:hidden"
+            >
+              <Menu className="scale-125" />
+            </Button>
+          )}
           <Image 
             src="/icon.svg" 
             alt="Budget Tracker Logo" 

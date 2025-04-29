@@ -1,4 +1,3 @@
-// src/components/layout/sidebar.tsx
 "use client";
 
 import Link from "next/link";
@@ -11,9 +10,13 @@ import {
   CreditCard,
   Settings,
   Shield,
+  X
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import Image from "next/image";
 
 const baseNavItems = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -23,12 +26,17 @@ const baseNavItems = [
   { name: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
 
-export default function Sidebar() {
+interface SidebarProps {
+  onClose?: () => void;
+}
+
+export default function Sidebar({ onClose }: SidebarProps) {
   const pathname = usePathname();
   const [isAdmin, setIsAdmin] = useState(false);
   const [navItems, setNavItems] = useState(baseNavItems);
   const [isLoading, setIsLoading] = useState(true);
   const supabase = createClient();
+  const isMobile = typeof window !== 'undefined' ? window.innerWidth < 768 : false;
 
   useEffect(() => {
     const checkIfAdmin = async () => {
@@ -76,19 +84,23 @@ export default function Sidebar() {
     checkIfAdmin();
   }, [supabase]);
 
+  const handleNavClick = () => {
+    if (isMobile && onClose) {
+      onClose();
+    }
+  };
+
   if (isLoading) {
     return (
-      <div className="hidden border-r bg-background md:block md:w-64">
-        <div className="flex h-full flex-col px-4">
-          <div className="space-y-4 py-4">
-            <div className="animate-pulse">
-              {[...Array(5)].map((_, i) => (
-                <div
-                  key={i}
-                  className="my-1 h-9 rounded-md bg-muted/50 px-3 py-2"
-                />
-              ))}
-            </div>
+      <div className="h-full flex flex-col bg-sidebar">
+        <div className="space-y-4 py-4 px-4">
+          <div className="animate-pulse">
+            {[...Array(5)].map((_, i) => (
+              <div
+                key={i}
+                className="my-1 h-9 rounded-md bg-muted/50 px-3 py-2"
+              />
+            ))}
           </div>
         </div>
       </div>
@@ -96,9 +108,32 @@ export default function Sidebar() {
   }
 
   return (
-    <div className="hidden border-r bg-background md:block md:w-64">
-      <div className="flex h-full flex-col px-4">
-        <div className="space-y-4 py-4">
+    <div className="h-full flex flex-col bg-background">
+      {/* Mobile header with close button */}
+      {isMobile && (
+        <div className="flex justify-between items-center p-4 border-b md:hidden">
+          <div className="flex items-center space-x-2">
+            <Image 
+              src="/icon.svg" 
+              alt="Budget Tracker Logo" 
+              width={24} 
+              height={24} 
+            />
+            <span className="text-md font-semibold">Budget Tracker</span>
+          </div>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={onClose}
+            className="h-8 w-8"
+          >
+            <X className="scale-125" />
+          </Button>
+        </div>
+      )}
+      
+      <ScrollArea className="flex-1">
+        <div className="space-y-4 py-4 px-4">
           <nav className="space-y-1">
             {navItems.map((item) => {
               const isActive = pathname === item.href;
@@ -106,6 +141,7 @@ export default function Sidebar() {
                 <Link
                   key={item.name}
                   href={item.href}
+                  onClick={handleNavClick}
                   className={cn(
                     "flex items-center rounded-md px-3 py-2 text-sm font-medium",
                     isActive
@@ -120,7 +156,7 @@ export default function Sidebar() {
             })}
           </nav>
         </div>
-      </div>
+      </ScrollArea>
     </div>
   );
 }

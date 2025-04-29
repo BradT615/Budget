@@ -15,7 +15,7 @@ export default async function SavingsPage() {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between pt-6 px-6">
           <h1 className="text-3xl font-bold">Savings Goals</h1>
           <AddSavingsGoalDialog>
             <Button>
@@ -25,7 +25,7 @@ export default async function SavingsPage() {
           </AddSavingsGoalDialog>
         </div>
         
-        <Card>
+        <Card className='m-3 sm:m-6'>
           <CardHeader>
             <CardTitle>Your Savings Goals</CardTitle>
           </CardHeader>

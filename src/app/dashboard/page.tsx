@@ -1,29 +1,66 @@
+// src/app/dashboard/page.tsx
 import { createClient } from '@/utils/supabase/server'
 import DashboardLayout from "@/components/layout/dashboard-layout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import OverviewChart from "./components/overview-chart";
 import RecentTransactions from "./components/recent-transactions";
+import { getIncomes } from "./income/actions/income";
+import { getExpenses } from "./expenses/actions/expenses";
+import { getSavingsGoals } from "./savings/actions/savings-goals";
+import { Progress } from "@/components/ui/progress";
+import { ArrowUpRight, ArrowDownRight, DollarSign, Target } from "lucide-react";
 
 export default async function DashboardPage() {
-  const supabase = await createClient()
+  const supabase = await createClient();
   
   // Get the authenticated user
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser();
   
-  // In a real app, you would fetch actual data from your database
-  // Example:
-  // const { data: incomeData } = await supabase
-  //   .from('income')
-  //   .select('amount')
-  //   .eq('user_id', user?.id);
-  // const totalIncome = incomeData?.reduce((sum, item) => sum + item.amount, 0) || 0;
+  // Fetch data from our database
+  const { data: incomes } = await getIncomes();
+  const { data: expenses } = await getExpenses();
+  const { data: savingsGoals } = await getSavingsGoals();
   
-  // For demo purposes, we'll use dummy data
-  const totalIncome = 2650.00;
-  const totalExpenses = 1840.00;
+  // Calculate summary statistics
+  const totalIncome = incomes?.reduce((sum, item) => sum + item.amount, 0) || 0;
+  const totalExpenses = expenses?.reduce((sum, item) => sum + item.amount, 0) || 0;
   const savings = totalIncome - totalExpenses;
-  const progressPercentage = 32;
+  
+  // Calculate progress towards total savings goals
+  const totalSavingsGoal = savingsGoals?.reduce((sum, goal) => sum + goal.target_amount, 0) || 0;
+  const currentSavings = savingsGoals?.reduce((sum, goal) => sum + goal.current_amount, 0) || 0;
+  
+  let progressPercentage = 0;
+  if (totalSavingsGoal > 0) {
+    progressPercentage = Math.min(100, (currentSavings / totalSavingsGoal) * 100);
+  }
+  
+  // Get the closest goal to completion (excluding completed ones)
+  const incompleteSavingsGoals = savingsGoals?.filter(goal => 
+    goal.current_amount < goal.target_amount
+  ) || [];
+  
+  let closestGoal = null;
+  let highestPercentage = 0;
+  
+  for (const goal of incompleteSavingsGoals) {
+    const percentage = (goal.current_amount / goal.target_amount) * 100;
+    if (percentage > highestPercentage) {
+      highestPercentage = percentage;
+      closestGoal = goal;
+    }
+  }
+  
+  // Format currency
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(amount);
+  };
 
   return (
     <DashboardLayout>
@@ -32,12 +69,12 @@ export default async function DashboardPage() {
           <h1 className="text-3xl font-bold">Dashboard</h1>
           {user && (
             <p className="text-muted-foreground">
-              Welcome, {user.email}
+              Welcome back, {user.email?.split('@')[0]}
             </p>
           )}
         </div>
         
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 m-3 sm:m-6">
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 m-3 sm:m-6">
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -45,7 +82,17 @@ export default async function DashboardPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">${totalIncome.toFixed(2)}</div>
+              <div className="flex items-center">
+                <div className="mr-3 rounded-full p-2 bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-400">
+                  <ArrowUpRight className="h-4 w-4" />
+                </div>
+                <div>
+                  <div className="text-2xl font-bold">{formatCurrency(totalIncome)}</div>
+                  <p className="text-xs text-muted-foreground">
+                    {incomes?.length || 0} income entries
+                  </p>
+                </div>
+              </div>
             </CardContent>
           </Card>
           
@@ -56,85 +103,168 @@ export default async function DashboardPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">${totalExpenses.toFixed(2)}</div>
+              <div className="flex items-center">
+                <div className="mr-3 rounded-full p-2 bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-400">
+                  <ArrowDownRight className="h-4 w-4" />
+                </div>
+                <div>
+                  <div className="text-2xl font-bold">{formatCurrency(totalExpenses)}</div>
+                  <p className="text-xs text-muted-foreground">
+                    {expenses?.length || 0} expense entries
+                  </p>
+                </div>
+              </div>
             </CardContent>
           </Card>
           
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Savings
+                Net Savings
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">${savings.toFixed(2)}</div>
+              <div className="flex items-center">
+                <div className="mr-3 rounded-full p-2 bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400">
+                  <DollarSign className="h-4 w-4" />
+                </div>
+                <div>
+                  <div className="text-2xl font-bold">{formatCurrency(savings)}</div>
+                  <p className="text-xs text-muted-foreground">
+                    {savings > 0 ? "Positive" : "Negative"} cash flow
+                  </p>
+                </div>
+              </div>
             </CardContent>
           </Card>
           
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Progress to Goal
+                Savings Goals
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{progressPercentage}%</div>
+              <div className="flex items-center">
+                <div className="mr-3 rounded-full p-2 bg-purple-100 text-purple-600 dark:bg-purple-900 dark:text-purple-400">
+                  <Target className="h-4 w-4" />
+                </div>
+                <div>
+                  <div className="text-2xl font-bold">{savingsGoals?.length || 0}</div>
+                  <p className="text-xs text-muted-foreground">
+                    {formatCurrency(currentSavings)} saved of {formatCurrency(totalSavingsGoal)}
+                  </p>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
         
-        <Tabs defaultValue="weekly" className='m-3 sm:m-6'>
-          <TabsList>
-            <TabsTrigger value="weekly">Weekly</TabsTrigger>
-            <TabsTrigger value="monthly">Monthly</TabsTrigger>
-            <TabsTrigger value="6month">6 Months</TabsTrigger>
-            <TabsTrigger value="yearly">Yearly</TabsTrigger>
-          </TabsList>
-          <TabsContent value="weekly" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Overview</CardTitle>
-              </CardHeader>
-              <CardContent className="h-80">
-                <OverviewChart period="weekly" />
-              </CardContent>
-            </Card>
-          </TabsContent>
-          <TabsContent value="monthly" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Overview</CardTitle>
-              </CardHeader>
-              <CardContent className="h-80">
-                <OverviewChart period="monthly" />
-              </CardContent>
-            </Card>
-          </TabsContent>
-          <TabsContent value="6month" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Overview</CardTitle>
-              </CardHeader>
-              <CardContent className="h-80">
-                <OverviewChart period="6month" />
-              </CardContent>
-            </Card>
-          </TabsContent>
-          <TabsContent value="yearly" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Overview</CardTitle>
-              </CardHeader>
-              <CardContent className="h-80">
-                <OverviewChart period="yearly" />
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+        {/* Main content area - horizontal on lg screens, vertical on smaller screens */}
+        <div className="grid gap-6 m-3 sm:m-6 lg:grid-cols-7">
+          {/* Financial Overview Chart - full width on smaller screens, partial width on lg */}
+          <Card className="lg:col-span-5 w-full">
+            <CardHeader>
+              <CardTitle>Financial Overview</CardTitle>
+              <CardDescription>Your income and expenses over time</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Tabs defaultValue="weekly" className="h-80">
+                <TabsList>
+                  <TabsTrigger value="weekly">Weekly</TabsTrigger>
+                  <TabsTrigger value="monthly">Monthly</TabsTrigger>
+                  <TabsTrigger value="6month">6 Months</TabsTrigger>
+                  <TabsTrigger value="yearly">Yearly</TabsTrigger>
+                </TabsList>
+                <TabsContent value="weekly" className="h-full">
+                  <OverviewChart period="weekly" />
+                </TabsContent>
+                <TabsContent value="monthly" className="h-full">
+                  <OverviewChart period="monthly" />
+                </TabsContent>
+                <TabsContent value="6month" className="h-full">
+                  <OverviewChart period="6month" />
+                </TabsContent>
+                <TabsContent value="yearly" className="h-full">
+                  <OverviewChart period="yearly" />
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
+          
+          {/* Savings Progress - full width on smaller screens, side column on lg */}
+          <Card className="lg:col-span-2 w-full min-w-[280px]">
+            <CardHeader>
+              <CardTitle>Savings Progress</CardTitle>
+              <CardDescription>Overall goal completion</CardDescription>
+            </CardHeader>
+            <CardContent className="pt-3">
+              <div className="space-y-8">
+                <div className="space-y-2">
+                  <div className="flex items-center">
+                    <h4 className="text-sm font-medium flex-grow">All Savings Goals</h4>
+                    <span className="text-sm font-medium">{progressPercentage.toFixed(0)}%</span>
+                  </div>
+                  <Progress value={progressPercentage} className="h-2" />
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>{formatCurrency(currentSavings)}</span>
+                    <span>{formatCurrency(totalSavingsGoal)}</span>
+                  </div>
+                </div>
+                
+                {closestGoal && (
+                  <div className="space-y-2">
+                    <div className="flex items-center">
+                      <h4 className="text-sm font-medium flex-grow truncate" title={closestGoal.name}>
+                        {closestGoal.name}
+                      </h4>
+                      <span className="text-sm font-medium">
+                        {((closestGoal.current_amount / closestGoal.target_amount) * 100).toFixed(0)}%
+                      </span>
+                    </div>
+                    <Progress 
+                      value={(closestGoal.current_amount / closestGoal.target_amount) * 100} 
+                      className="h-2" 
+                    />
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>{formatCurrency(closestGoal.current_amount)}</span>
+                      <span>{formatCurrency(closestGoal.target_amount)}</span>
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      Closest to completion
+                    </div>
+                  </div>
+                )}
+                
+                <div className="pt-2">
+                  <div className="flex flex-col space-y-4">
+                    <div className="rounded-lg border p-4">
+                      <div className="text-sm text-muted-foreground">Completed Goals</div>
+                      <div className="text-2xl font-bold mt-3 flex items-center">
+                        {savingsGoals?.filter(g => g.current_amount >= g.target_amount).length || 0}
+                      </div>
+                    </div>
+                    <div className="rounded-lg border p-4">
+                      <div className="text-sm text-muted-foreground">Average Progress</div>
+                      <div className="text-2xl font-bold mt-3 flex items-center">
+                        {savingsGoals?.length 
+                          ? (savingsGoals.reduce((sum, g) => 
+                              sum + Math.min(100, (g.current_amount / g.target_amount) * 100), 0) 
+                            / savingsGoals.length).toFixed(0)
+                          : 0}%
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
         
-        <Card>
+        <Card className="m-3 sm:m-6">
           <CardHeader>
             <CardTitle>Recent Transactions</CardTitle>
+            <CardDescription>Your latest income and expenses</CardDescription>
           </CardHeader>
           <CardContent>
             <RecentTransactions />

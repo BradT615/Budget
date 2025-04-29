@@ -1,135 +1,197 @@
+// src/app/dashboard/savings/components/savings-goals-list.tsx
 "use client";
 
-import { useEffect, useState } from "react";
-import { createClient } from "@/utils/supabase/client";
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { cn } from "@/utils/utils";
+import { CalendarIcon, Edit, Target, Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useRouter } from "next/navigation";
+import { SavingsGoal, deleteSavingsGoal } from "../actions/savings-goals";
+import EditSavingsGoalDialog from "./edit-savings-goal-dialog";
 
-type SavingsGoal = {
-  id: string;
-  name: string;
-  target_amount: number;
-  current_amount: number;
-  target_date: string | null;
-};
+interface SavingsGoalsListProps {
+  goals: SavingsGoal[];
+}
 
-export default function SavingsGoalsList({ userId }: { userId?: string }) {
-  const [goals, setGoals] = useState<SavingsGoal[]>([]);
-  const [loading, setLoading] = useState(true);
-  const supabase = createClient();
-
-  useEffect(() => {
-    const fetchGoals = async () => {
-      setLoading(true);
-      
-      if (userId) {
-        // In a real app, you would fetch data from Supabase
-        // const { data } = await supabase
-        //   .from('savings_goals')
-        //   .select('*')
-        //   .eq('user_id', userId)
-        //   .order('created_at', { ascending: false });
-        
-        // setGoals(data || []);
-      }
-      
-      // For demo purposes, we'll use dummy data
-      const demoGoals: SavingsGoal[] = [
-        {
-          id: '1',
-          name: 'Emergency Fund',
-          target_amount: 10000,
-          current_amount: 5000,
-          target_date: '2025-12-31'
-        },
-        {
-          id: '2',
-          name: 'Vacation',
-          target_amount: 3000,
-          current_amount: 1200,
-          target_date: '2025-06-30'
-        },
-        {
-          id: '3',
-          name: 'New Laptop',
-          target_amount: 1500,
-          current_amount: 800,
-          target_date: '2025-08-15'
-        }
-      ];
-      
-      setGoals(demoGoals);
-      setLoading(false);
-    };
-
-    fetchGoals();
-  }, [userId, supabase]);
+export default function SavingsGoalsList({ goals }: SavingsGoalsListProps) {
+  const [loading, setLoading] = useState(false);
+  const [editingGoal, setEditingGoal] = useState<SavingsGoal | null>(null);
+  const router = useRouter();
 
   const handleDelete = async (id: string) => {
+    setLoading(true);
     try {
-      // In a real app, you would delete from Supabase
-      // await supabase
-      //   .from('savings_goals')
-      //   .delete()
-      //   .eq('id', id)
-      //   .eq('user_id', userId);
+      const formData = new FormData();
+      formData.append('id', id);
       
-      // For demo purposes, we'll just update the state
-      setGoals(goals.filter(goal => goal.id !== id));
+      const result = await deleteSavingsGoal(formData);
+      
+      if (!result.success) {
+        console.error("Failed to delete savings goal:", result.error);
+      }
+      
+      router.refresh();
     } catch (error) {
       console.error('Error deleting savings goal:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  if (loading) {
-    return <div>Loading savings goals...</div>;
+  // Format currency
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2
+    }).format(amount);
+  };
+
+  // Format date
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return "No target date";
+    const date = new Date(dateString);
+    return date.toLocaleDateString(undefined, { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
+  };
+
+  if (goals.length === 0) {
+    return (
+      <div className="text-center py-8 text-muted-foreground">
+        You don&apos;t have any savings goals yet. Use the &quot;Add Savings Goal&quot; button to create your first goal.
+      </div>
+    );
   }
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-      {goals.length === 0 ? (
-        <div className="col-span-full text-center">
-          No savings goals found. Add your first goal!
-        </div>
-      ) : (
-        goals.map((goal) => {
-          const progressPercentage = (goal.current_amount / goal.target_amount) * 100;
+    <>
+      {editingGoal && (
+        <EditSavingsGoalDialog
+          goal={editingGoal}
+          open={!!editingGoal}
+          onOpenChange={(open) => {
+            if (!open) setEditingGoal(null);
+          }}
+        />
+      )}
+
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {goals.map((goal) => {
+          const progressPercentage = Math.min(
+            100,
+            (goal.current_amount / goal.target_amount) * 100
+          );
+          
+          const isCompleted = progressPercentage >= 100;
+          const isCloseToTarget = progressPercentage >= 80 && progressPercentage < 100;
           
           return (
-            <Card key={goal.id} className="overflow-hidden">
+            <Card 
+              key={goal.id} 
+              className={cn(
+                "transition-all duration-200 overflow-hidden",
+                isCompleted && "border-green-400 bg-green-50 dark:bg-green-950/20"
+              )}
+            >
               <CardContent className="p-6">
                 <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <h3 className="font-medium text-lg">{goal.name}</h3>
+                  <div className="space-y-1 mr-2">
+                    <h3 className="font-semibold text-lg truncate max-w-[200px]" title={goal.name}>
+                      {goal.name} 
+                      {isCompleted && (
+                        <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                          Completed
+                        </span>
+                      )}
+                    </h3>
+                    
+                    <div className="flex items-center text-muted-foreground text-sm">
+                      <Target className="h-3.5 w-3.5 mr-1.5" />
+                      <span>{formatCurrency(goal.target_amount)}</span>
+                    </div>
+                    
                     {goal.target_date && (
-                      <p className="text-sm text-muted-foreground">
-                        Target: {new Date(goal.target_date).toLocaleDateString()}
-                      </p>
+                      <div className="flex items-center text-muted-foreground text-sm">
+                        <CalendarIcon className="h-3.5 w-3.5 mr-1.5" />
+                        <span>{formatDate(goal.target_date)}</span>
+                      </div>
                     )}
                   </div>
-                  <div className="flex space-x-1">
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <Pencil className="h-4 w-4" />
-                    </Button>
+                  
+                  <div className="flex space-x-1 flex-shrink-0">
                     <Button 
                       variant="ghost" 
                       size="icon" 
                       className="h-8 w-8"
-                      onClick={() => handleDelete(goal.id)}
+                      onClick={() => setEditingGoal(goal)}
+                      disabled={loading}
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Edit className="h-4 w-4" />
+                      <span className="sr-only">Edit</span>
                     </Button>
+                    
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-8 w-8"
+                          disabled={loading}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                          <span className="sr-only">Delete</span>
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete Savings Goal</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Are you sure you want to delete &quot;{goal.name}&quot;? This action cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleDelete(goal.id)}
+                            className="bg-red-600 text-white hover:bg-red-700"
+                          >
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
                 </div>
                 
                 <div className="space-y-3">
                   <div className="flex justify-between text-sm">
-                    <span>${goal.current_amount.toFixed(2)}</span>
-                    <span>${goal.target_amount.toFixed(2)}</span>
+                    <span>{formatCurrency(goal.current_amount)}</span>
+                    <span>{formatCurrency(goal.target_amount)}</span>
                   </div>
-                  <Progress value={progressPercentage} className="h-2" />
+                  <Progress 
+                    value={progressPercentage} 
+                    className={cn(
+                      "h-2",
+                      isCompleted && "bg-green-100 [&>div]:bg-green-500",
+                      isCloseToTarget && "bg-yellow-100 [&>div]:bg-yellow-500"
+                    )}
+                  />
                   <div className="text-center text-sm text-muted-foreground">
                     {progressPercentage.toFixed(0)}% completed
                   </div>
@@ -137,8 +199,8 @@ export default function SavingsGoalsList({ userId }: { userId?: string }) {
               </CardContent>
             </Card>
           );
-        })
-      )}
-    </div>
+        })}
+      </div>
+    </>
   );
 }

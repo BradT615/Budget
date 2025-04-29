@@ -1,7 +1,6 @@
 // src/app/dashboard/expenses/page.tsx
-import { createClient } from '@/utils/supabase/server'
 import DashboardLayout from "@/components/layout/dashboard-layout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 import ExpenseList from "./components/expense-list";

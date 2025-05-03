@@ -1,6 +1,5 @@
 // src/app/dashboard/page.tsx
 import { createClient } from '@/utils/supabase/server'
-import DashboardLayout from "@/components/layout/dashboard-layout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import OverviewChart from "./components/overview-chart";
@@ -63,8 +62,9 @@ export default async function DashboardPage() {
   };
 
   return (
-    <DashboardLayout>
+    <div className="min-w-0 h-full">
       <div className="space-y-6">
+        {/* Stick to top of scrollable content */}
         <div className="flex items-center justify-between pt-6 px-6">
           <h1 className="text-3xl font-bold">Dashboard</h1>
           {user && (
@@ -74,6 +74,7 @@ export default async function DashboardPage() {
           )}
         </div>
         
+        {/* Summary cards - ensure proper responsive layout */}
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 m-3 sm:m-6">
           <Card>
             <CardHeader className="pb-2">
@@ -160,15 +161,16 @@ export default async function DashboardPage() {
           </Card>
         </div>
         
-        {/* Main content area - horizontal on lg screens, vertical on smaller screens */}
+        {/* Main content area - optimize for horizontal scrolling */}
         <div className="grid gap-6 m-3 sm:m-6 lg:grid-cols-7">
-          {/* Financial Overview Chart - full width on smaller screens, partial width on lg */}
-          <Card className="lg:col-span-5 w-full">
+          {/* Financial Overview Chart - ensure proper sizing and scrolling */}
+          <Card className="lg:col-span-5 w-full min-w-0">
             <CardHeader>
               <CardTitle>Financial Overview</CardTitle>
               <CardDescription>Your income and expenses over time</CardDescription>
             </CardHeader>
             <CardContent>
+              {/* Ensure chart container doesn't overflow */}
               <Tabs defaultValue="weekly" className="h-80">
                 <TabsList>
                   <TabsTrigger value="weekly">Weekly</TabsTrigger>
@@ -192,7 +194,7 @@ export default async function DashboardPage() {
             </CardContent>
           </Card>
           
-          {/* Savings Progress - full width on smaller screens, side column on lg */}
+          {/* Savings Progress - ensure proper sizing */}
           <Card className="lg:col-span-2 w-full min-w-[280px]">
             <CardHeader>
               <CardTitle>Savings Progress</CardTitle>
@@ -261,6 +263,7 @@ export default async function DashboardPage() {
           </Card>
         </div>
         
+        {/* Recent Transactions - optimized for scrolling */}
         <Card className="m-3 sm:m-6">
           <CardHeader>
             <CardTitle>Recent Transactions</CardTitle>
@@ -271,6 +274,6 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
       </div>
-    </DashboardLayout>
+    </div>
   );
 }

@@ -1,6 +1,5 @@
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
-import DashboardLayout from "@/components/layout/dashboard-layout";
 import EmailWhitelistManager from "./components/email-whitelist-manager";
 import AdminUsersManager from "./components/admin-users-manager";
 
@@ -29,16 +28,14 @@ export default async function AdminPage() {
   }
   
   return (
-    <DashboardLayout>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between pt-6 px-6">
-          <h1 className="text-3xl font-bold">Admin Panel</h1>
-        </div>
-        
-        {/* The components handle data fetching internally */}
-        <EmailWhitelistManager />
-        <AdminUsersManager />
+    <div className="space-y-6">
+      <div className="flex items-center justify-between pt-6 px-6">
+        <h1 className="text-3xl font-bold">Admin Panel</h1>
       </div>
-    </DashboardLayout>
+      
+      {/* The components handle data fetching internally */}
+      <EmailWhitelistManager />
+      <AdminUsersManager />
+    </div>
   );
 }

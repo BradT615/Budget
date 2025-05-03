@@ -15,6 +15,7 @@ export default async function DashboardPage() {
   
   // Get the authenticated user
   const { data: { user } } = await supabase.auth.getUser();
+  const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || "User";
   
   // Fetch data from our database
   const { data: incomes } = await getIncomes();
@@ -69,7 +70,7 @@ export default async function DashboardPage() {
           <h1 className="text-3xl font-bold">Dashboard</h1>
           {user && (
             <p className="text-muted-foreground">
-              Welcome back, {user.email?.split('@')[0]}
+              Welcome back, <span className="font-medium">{displayName}</span>
             </p>
           )}
         </div>

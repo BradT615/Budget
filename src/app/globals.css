@@ -48,110 +48,100 @@
 }
 
 :root {
-  --radius: 0.625rem;
-  /* Light theme - clean and minimal with a modern touch */
-  --background: oklch(0.98 0 0);
-  --foreground: oklch(0.2 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.2 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.2 0 0);
+  --radius: 0.5rem;
+  /* Light theme - Catppuccin Latte colors */
+  --background: hsl(220, 23%, 95%); /* base */
+  --foreground: hsl(234, 16%, 35%); /* text */
+  --muted: hsl(223, 16%, 83%); /* surface0 */
+  --muted-foreground: hsl(233, 13%, 41%); /* subtext1 */
+  --popover: hsl(220, 23%, 95%); /* base */
+  --popover-foreground: hsl(234, 16%, 35%); /* text */
+  --card: hsl(220, 23%, 95%); /* base */
+  --card-foreground: hsl(234, 16%, 35%); /* text */
+  --border: hsl(225, 14%, 77%); /* surface1 */
+  --input: hsl(225, 14%, 77%); /* surface1 */
+  --primary: hsl(220, 91%, 54%); /* accent - Blue */
+  --primary-foreground: hsl(220, 23%, 95%); /* base */
+  --secondary: hsl(223, 16%, 83%); /* surface0 */
+  --secondary-foreground: hsl(234, 16%, 35%); /* text */
+  --accent: hsl(223, 16%, 83%); /* surface0 */
+  --accent-foreground: hsl(234, 16%, 35%); /* text */
+  --destructive: hsl(347, 87%, 44%); /* red */
+  --destructive-foreground: hsl(220, 22%, 92%); /* mantle */
+  --ring: hsl(234, 16%, 35%); /* text */
   
-  /* Primary color - a modern indigo/blue that's more neutral than purple */
-  --primary: oklch(0.55 0.2 265);
-  --primary-foreground: oklch(0.98 0 0);
-  
-  /* Secondary and subtle UI elements */
-  --secondary: oklch(0.96 0.03 240);
-  --secondary-foreground: oklch(0.3 0.05 265);
-  --muted: oklch(0.96 0 0);
-  --muted-foreground: oklch(0.55 0 0);
-  --accent: oklch(0.95 0.03 240);
-  --accent-foreground: oklch(0.3 0.05 265);
-  
-  /* UI elements */
-  --destructive: oklch(0.65 0.25 25);
-  --border: oklch(0.85 0.02 240);
-  --input: oklch(0.85 0.02 240);
-  --ring: oklch(0.5 0.2 265);
-  
-  /* Success, warning, info colors */
-  --success: oklch(0.65 0.2 150);
-  --success-foreground: oklch(0.98 0 0);
-  --warning: oklch(0.75 0.2 80);
-  --warning-foreground: oklch(0.2 0 0);
-  --info: oklch(0.7 0.2 220);
-  --info-foreground: oklch(0.98 0 0);
-  
-  /* Chart colors - a cohesive palette that works well together */
-  --chart-1: oklch(0.55 0.2 265); /* Primary */
-  --chart-2: oklch(0.6 0.2 210); /* Cool blue */
-  --chart-3: oklch(0.65 0.2 150); /* Teal/green - success */
-  --chart-4: oklch(0.75 0.2 80); /* Amber - warning */
-  --chart-5: oklch(0.65 0.25 25); /* Red - destructive */
+  /* Chart colors - Catppuccin Latte */
+  --chart-1: hsl(347, 87%, 44%); /* red */
+  --chart-2: hsl(183, 74%, 35%); /* teal */
+  --chart-3: hsl(220, 91%, 54%); /* blue */
+  --chart-4: hsl(35, 77%, 49%); /* yellow */
+  --chart-5: hsl(109, 58%, 40%); /* green */
   
   /* Sidebar theming */
-  --sidebar: oklch(0.975 0 0);
-  --sidebar-foreground: oklch(0.2 0 0);
-  --sidebar-primary: oklch(0.55 0.2 265);
-  --sidebar-primary-foreground: oklch(0.98 0 0);
-  --sidebar-accent: oklch(0.95 0.03 240);
-  --sidebar-accent-foreground: oklch(0.3 0.05 265);
-  --sidebar-border: oklch(0.9 0 0);
-  --sidebar-ring: oklch(0.5 0.2 265);
+  --sidebar: hsl(220, 23%, 95%); /* base */
+  --sidebar-foreground: hsl(234, 16%, 35%); /* text */
+  --sidebar-primary: hsl(220, 91%, 54%); /* accent - Blue */
+  --sidebar-primary-foreground: hsl(220, 23%, 95%); /* base */
+  --sidebar-accent: hsl(223, 16%, 83%); /* surface0 */
+  --sidebar-accent-foreground: hsl(234, 16%, 35%); /* text */
+  --sidebar-border: hsl(225, 14%, 77%); /* surface1 */
+  --sidebar-ring: hsl(234, 16%, 35%); /* text */
+  
+  /* Success, warning, info colors */
+  --success: hsl(183, 74%, 35%); /* teal */
+  --success-foreground: hsl(220, 23%, 95%); /* base */
+  --warning: hsl(35, 77%, 49%); /* yellow */
+  --warning-foreground: hsl(220, 23%, 95%); /* base */
+  --info: hsl(220, 91%, 54%); /* blue */
+  --info-foreground: hsl(220, 23%, 95%); /* base */
 }
 
 .dark {
-  /* Dark theme - slightly softer than pure black for better readability */
-  --background: oklch(0.15 0 0);
-  --foreground: oklch(0.95 0 0);
-  --card: oklch(0.2 0 0);
-  --card-foreground: oklch(0.95 0 0);
-  --popover: oklch(0.2 0 0);
-  --popover-foreground: oklch(0.95 0 0);
+  /* Dark theme - Catppuccin Mocha colors */
+  --background: hsl(232, 23%, 18%); /* base */
+  --foreground: hsl(227, 68%, 88%); /* text */
+  --muted: hsl(230, 19%, 26%); /* surface0 */
+  --muted-foreground: hsl(228, 39%, 80%); /* subtext1 */
+  --popover: hsl(232, 23%, 18%); /* base */
+  --popover-foreground: hsl(227, 68%, 88%); /* text */
+  --card: hsl(232, 23%, 18%); /* base */
+  --card-foreground: hsl(227, 68%, 88%); /* text */
+  --border: hsl(231, 16%, 34%); /* surface1 */
+  --input: hsl(231, 16%, 34%); /* surface1 */
+  --primary: hsl(220, 83%, 75%); /* accent - Blue */
+  --primary-foreground: hsl(232, 23%, 18%); /* base */
+  --secondary: hsl(230, 19%, 26%); /* surface0 */
+  --secondary-foreground: hsl(227, 68%, 88%); /* text */
+  --accent: hsl(230, 19%, 26%); /* surface0 */
+  --accent-foreground: hsl(227, 68%, 88%); /* text */
+  --destructive: hsl(351, 74%, 73%); /* red */
+  --destructive-foreground: hsl(233, 23%, 15%); /* mantle */
+  --ring: hsl(227, 68%, 88%); /* text */
   
-  /* Primary color - brighter in dark mode for better visibility */
-  --primary: oklch(0.6 0.2 265);
-  --primary-foreground: oklch(0.15 0 0);
+  /* Chart colors - Catppuccin Mocha */
+  --chart-1: hsl(351, 74%, 73%); /* red */
+  --chart-2: hsl(171, 47%, 69%); /* teal */
+  --chart-3: hsl(220, 83%, 75%); /* blue */
+  --chart-4: hsl(40, 70%, 78%); /* yellow */
+  --chart-5: hsl(105, 48%, 72%); /* green */
   
-  /* Secondary and subtle UI elements - softer contrast */
-  --secondary: oklch(0.3 0.02 265);
-  --secondary-foreground: oklch(0.95 0 0);
-  --muted: oklch(0.25 0 0);
-  --muted-foreground: oklch(0.7 0 0);
-  --accent: oklch(0.3 0.03 265);
-  --accent-foreground: oklch(0.95 0 0);
+  /* Sidebar theming - match the main theme */
+  --sidebar: hsl(232, 23%, 18%); /* base */
+  --sidebar-foreground: hsl(227, 68%, 88%); /* text */
+  --sidebar-primary: hsl(220, 83%, 75%); /* accent - Blue */
+  --sidebar-primary-foreground: hsl(232, 23%, 18%); /* base */
+  --sidebar-accent: hsl(230, 19%, 26%); /* surface0 */
+  --sidebar-accent-foreground: hsl(227, 68%, 88%); /* text */
+  --sidebar-border: hsl(231, 16%, 34%); /* surface1 */
+  --sidebar-ring: hsl(227, 68%, 88%); /* text */
   
-  /* UI elements */
-  --destructive: oklch(0.7 0.2 25);
-  --border: oklch(0.3 0.02 265);
-  --input: oklch(0.3 0.02 265);
-  --ring: oklch(0.65 0.15 265);
-  
-  /* Success, warning, info colors - brighter in dark mode */
-  --success: oklch(0.7 0.2 150);
-  --success-foreground: oklch(0.15 0 0);
-  --warning: oklch(0.8 0.2 80);
-  --warning-foreground: oklch(0.15 0 0);
-  --info: oklch(0.75 0.2 220);
-  --info-foreground: oklch(0.15 0 0);
-  
-  /* Chart colors - brighter for dark mode */
-  --chart-1: oklch(0.6 0.2 265); /* Primary */
-  --chart-2: oklch(0.65 0.2 210); /* Cool blue */
-  --chart-3: oklch(0.7 0.2 150); /* Teal/green - success */
-  --chart-4: oklch(0.8 0.2 80); /* Amber - warning */
-  --chart-5: oklch(0.7 0.2 25); /* Red - destructive */
-  
-  /* Sidebar theming */
-  --sidebar: oklch(0.2 0 0);
-  --sidebar-foreground: oklch(0.95 0 0);
-  --sidebar-primary: oklch(0.6 0.2 265);
-  --sidebar-primary-foreground: oklch(0.15 0 0);
-  --sidebar-accent: oklch(0.3 0.03 265);
-  --sidebar-accent-foreground: oklch(0.95 0 0);
-  --sidebar-border: oklch(0.3 0 0);
-  --sidebar-ring: oklch(0.65 0.15 265);
+  /* Other colors - maintain similar style */
+  --success: hsl(171, 47%, 69%); /* teal */
+  --success-foreground: hsl(232, 23%, 18%); /* base */
+  --warning: hsl(40, 70%, 78%); /* yellow */
+  --warning-foreground: hsl(232, 23%, 18%); /* base */
+  --info: hsl(220, 83%, 75%); /* blue */
+  --info-foreground: hsl(232, 23%, 18%); /* base */
 }
 
 @layer base {

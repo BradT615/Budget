@@ -5,11 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import UpdateProfileForm from "./components/update-profile-form";
 import DeleteAccountSection from "./components/delete-account-section";
 
-export default async function SettingsPage({
-  searchParams,
-}: {
-  searchParams?: Record<string, string>;
-}) {
+export default async function SettingsPage() {
   const supabase = await createClient();
   
   // Get the authenticated user

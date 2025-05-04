@@ -3,17 +3,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import TransactionsList from "./components/transactions-list";
 import { getTransactions } from "./actions/transactions";
 
-export default async function TransactionsPage({
-  searchParams,
-}: {
-  searchParams?: { filter?: string; search?: string };
-}) {
+export default async function TransactionsPage() {
   // Get transactions data
   const { data: transactions, error } = await getTransactions();
-  
-  // You could handle any searchParams here if needed
-  const filter = searchParams?.filter;
-  const search = searchParams?.search;
   
   return (
     <div className="space-y-6">

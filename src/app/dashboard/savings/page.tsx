@@ -6,11 +6,7 @@ import SavingsGoalsList from "./components/savings-goals-list";
 import AddSavingsGoalDialog from "./components/add-savings-goal-dialog";
 import { getSavingsGoals } from "./actions/savings-goals";
 
-export default async function SavingsPage({
-  searchParams,
-}: {
-  searchParams?: Record<string, string>;
-}) {
+export default async function SavingsPage() {
   // Get savings goals data
   const { data: goals, error } = await getSavingsGoals();
   

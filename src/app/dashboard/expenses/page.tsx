@@ -7,17 +7,16 @@ import AddExpenseDialog from "./components/add-expense-dialog";
 import { getExpenses } from "./actions/expenses";
 import { Suspense } from "react";
 
-type ExpensesPageProps = {
-  params: {};
-  searchParams: { [key: string]: string | string[] | undefined };
-}
-
-export default async function ExpensesPage({ searchParams }: ExpensesPageProps) {
+export default async function ExpensesPage({
+  searchParams,
+}: {
+  searchParams?: { [key: string]: string | string[] | undefined };
+}) {
   // Get expenses data
   const { data: expenses, error } = await getExpenses();
   
   // Check if an expense ID is present in the URL for editing
-  const editId = typeof searchParams.edit === 'string' ? searchParams.edit : undefined;
+  const editId = typeof searchParams?.edit === 'string' ? searchParams.edit : undefined;
   
   return (
     <div className="space-y-6">

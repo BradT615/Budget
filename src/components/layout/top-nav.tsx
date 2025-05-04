@@ -20,10 +20,18 @@ interface TopNavProps {
   toggleSidebar?: () => void;
 }
 
+interface UserData {
+  email?: string;
+  user_metadata?: {
+    avatar_url?: string;
+    full_name?: string;
+  };
+}
+
 export default function TopNav({ toggleSidebar }: TopNavProps) {
   const router = useRouter();
   const supabase = createClient();
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<UserData | null>(null);
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {

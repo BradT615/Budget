@@ -1,3 +1,4 @@
+// src/app/dashboard/components/overview-chart.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -22,6 +23,23 @@ type ChartData = {
   expenses: number;
   balance: number;
 }
+
+// Define types for income and expense data from the server
+type IncomeData = {
+  id: string;
+  amount: number;
+  date: string;
+  source: string;
+  [key: string]: unknown;
+};
+
+type ExpenseData = {
+  id: string;
+  amount: number;
+  date: string;
+  description: string;
+  [key: string]: unknown;
+};
 
 export default function OverviewChart({ period }: { period: ChartPeriod }) {
   const [data, setData] = useState<ChartData[]>([]);
@@ -89,12 +107,11 @@ export default function OverviewChart({ period }: { period: ChartPeriod }) {
           // Round min and max to nice values
           // For negative values, round down to nearest multiple of a nice round number
           if (minValue < 0) {
-            const magnitude = Math.pow(10, Math.floor(Math.log10(Math.abs(minValue))));
-            minValue = Math.floor(minValue / magnitude) * magnitude;
+            const minMagnitude = Math.pow(10, Math.floor(Math.log10(Math.abs(minValue))));
+            minValue = Math.floor(minValue / minMagnitude) * minMagnitude;
           }
           
           // For max values, round up to nearest nice number
-          const magnitude = Math.pow(10, Math.floor(Math.log10(maxValue)));
           if (maxValue < 100) {
             // For small values, round to nearest 10
             maxValue = Math.ceil(maxValue / 10) * 10;
@@ -125,7 +142,7 @@ export default function OverviewChart({ period }: { period: ChartPeriod }) {
   }, [period, supabase]);
 
   // Generate weekly data (last 7 days)
-  const generateWeeklyData = (incomeData: any[], expenseData: any[], today: Date) => {
+  const generateWeeklyData = (incomeData: IncomeData[], expenseData: ExpenseData[], today: Date) => {
     const startDate = startOfWeek(today, { weekStartsOn: 1 }); // Week starts on Monday
     const endDate = endOfWeek(today, { weekStartsOn: 1 });
     
@@ -175,7 +192,7 @@ export default function OverviewChart({ period }: { period: ChartPeriod }) {
   };
   
   // Generate monthly data (4 weeks)
-  const generateMonthlyData = (incomeData: any[], expenseData: any[], today: Date) => {
+  const generateMonthlyData = (incomeData: IncomeData[], expenseData: ExpenseData[], today: Date) => {
     // Get the start and end of the current month
     const startDate = startOfMonth(today);
     const endDate = endOfMonth(today);
@@ -247,7 +264,7 @@ export default function OverviewChart({ period }: { period: ChartPeriod }) {
   };
   
   // Generate 6-month data
-  const generate6MonthData = (incomeData: any[], expenseData: any[], today: Date) => {
+  const generate6MonthData = (incomeData: IncomeData[], expenseData: ExpenseData[], today: Date) => {
     // Get data for the last 6 months
     const endDate = endOfMonth(today);
     const startDate = startOfMonth(subMonths(today, 5));
@@ -305,7 +322,7 @@ export default function OverviewChart({ period }: { period: ChartPeriod }) {
   };
   
   // Generate yearly data
-  const generateYearlyData = (incomeData: any[], expenseData: any[], today: Date) => {
+  const generateYearlyData = (incomeData: IncomeData[], expenseData: ExpenseData[], today: Date) => {
     // Get data for the current year
     const startDate = startOfYear(today);
     const endDate = endOfYear(today);
@@ -417,12 +434,11 @@ export default function OverviewChart({ period }: { period: ChartPeriod }) {
     // Round min and max to nice values
     // For negative values, round down to nearest multiple of a nice round number
     if (minValue < 0) {
-      const magnitude = Math.pow(10, Math.floor(Math.log10(Math.abs(minValue))));
-      minValue = Math.floor(minValue / magnitude) * magnitude;
+      const minMagnitude = Math.pow(10, Math.floor(Math.log10(Math.abs(minValue))));
+      minValue = Math.floor(minValue / minMagnitude) * minMagnitude;
     }
     
     // For max values, round up to nearest nice number
-    const magnitude = Math.pow(10, Math.floor(Math.log10(maxValue)));
     if (maxValue < 100) {
       // For small values, round to nearest 10
       maxValue = Math.ceil(maxValue / 10) * 10;

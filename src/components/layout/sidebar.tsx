@@ -7,7 +7,7 @@ import {
   LayoutDashboard,
   DollarSign,
   PiggyBank,
-  CreditCard,
+  // Removing unused CreditCard import
   Settings,
   Shield,
   X,
@@ -35,7 +35,7 @@ interface SidebarProps {
 
 export default function Sidebar({ onClose }: SidebarProps) {
   const pathname = usePathname();
-  const [isAdmin, setIsAdmin] = useState(false);
+  // Removing the unused isAdmin variable since we're using it in logic later
   const [navItems, setNavItems] = useState(baseNavItems);
   const [isLoading, setIsLoading] = useState(true);
   const supabase = createClient();
@@ -50,7 +50,6 @@ export default function Sidebar({ onClose }: SidebarProps) {
         const { data: { user } } = await supabase.auth.getUser();
         
         if (!user) {
-          setIsAdmin(false);
           setIsLoading(false);
           return;
         }
@@ -62,23 +61,17 @@ export default function Sidebar({ onClose }: SidebarProps) {
         
         if (error) {
           console.error("Error checking admin status:", error);
-          setIsAdmin(false);
-        } else {
-          setIsAdmin(!!data);
-          
+        } else if (!!data) {
           // If admin, add the admin panel link
-          if (!!data) {
-            setNavItems([
-              ...baseNavItems,
-              { name: "Admin", href: "/dashboard/admin", icon: Shield },
-            ]);
-          } else {
-            setNavItems(baseNavItems);
-          }
+          setNavItems([
+            ...baseNavItems,
+            { name: "Admin", href: "/dashboard/admin", icon: Shield },
+          ]);
+        } else {
+          setNavItems(baseNavItems);
         }
       } catch (error) {
         console.error("Error in checkIfAdmin:", error);
-        setIsAdmin(false);
       } finally {
         setIsLoading(false);
       }

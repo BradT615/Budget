@@ -1,6 +1,7 @@
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { LoginButton } from "./components/login-button";
+import Image from "next/image"; // Import Next.js Image component
 
 export default async function LoginPage() {
   const supabase = await createClient()
@@ -13,12 +14,14 @@ export default async function LoginPage() {
   
   return (
     <div className="min-h-screen flex flex-col justify-center items-center p-6 bg-background">
-      {/* Logo */}
+      {/* Logo - replaced img with Next Image component */}
       <div className="mb-8 flex flex-col items-center">
-        <img
+        <Image
           src="/icon.svg"
           alt="Logo"
-          className="w-24 h-24 text-primary"
+          width={96}
+          height={96}
+          className="text-primary"
         />
       </div>
 

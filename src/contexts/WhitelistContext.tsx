@@ -1,7 +1,7 @@
 // src/contexts/WhitelistContext.tsx
 "use client";
 
-import { createContext, useState, useEffect, useContext, ReactNode } from "react";
+import { createContext, useState, useEffect, useContext, ReactNode, useCallback } from "react";
 import { createClient } from "@/utils/supabase/client";
 
 type WhitelistedEmail = {
@@ -24,13 +24,19 @@ type WhitelistContextType = {
 
 const WhitelistContext = createContext<WhitelistContextType | undefined>(undefined);
 
+type ErrorWithMessage = {
+  message: string;
+  [key: string]: unknown;
+};
+
 export function WhitelistProvider({ children }: { children: ReactNode }) {
   const [whitelistedEmails, setWhitelistedEmails] = useState<WhitelistedEmail[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const supabase = createClient();
 
-  const fetchWhitelistedEmails = async () => {
+  // Use useCallback to memoize the function so it doesn't change on every render
+  const fetchWhitelistedEmails = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     
@@ -42,13 +48,15 @@ export function WhitelistProvider({ children }: { children: ReactNode }) {
       
       if (error) throw error;
       setWhitelistedEmails(data || []);
-    } catch (err: any) {
+    } catch (err) {
       console.error("Error fetching whitelist:", err);
-      setError(err.message || "Failed to fetch whitelisted emails");
+      setError(typeof err === 'object' && err !== null && 'message' in err 
+        ? String((err as ErrorWithMessage).message) 
+        : "Failed to fetch whitelisted emails");
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [supabase]);
 
   const addEmail = async (email: string, notes?: string) => {
     setError(null);
@@ -60,9 +68,11 @@ export function WhitelistProvider({ children }: { children: ReactNode }) {
       
       if (error) throw error;
       await fetchWhitelistedEmails();
-    } catch (err: any) {
+    } catch (err) {
       console.error("Error adding email to whitelist:", err);
-      setError(err.message || "Failed to add email to whitelist");
+      setError(typeof err === 'object' && err !== null && 'message' in err 
+        ? String((err as ErrorWithMessage).message) 
+        : "Failed to add email to whitelist");
       throw err;
     }
   };
@@ -78,9 +88,11 @@ export function WhitelistProvider({ children }: { children: ReactNode }) {
       
       if (error) throw error;
       await fetchWhitelistedEmails();
-    } catch (err: any) {
+    } catch (err) {
       console.error("Error removing email from whitelist:", err);
-      setError(err.message || "Failed to remove email from whitelist");
+      setError(typeof err === 'object' && err !== null && 'message' in err 
+        ? String((err as ErrorWithMessage).message) 
+        : "Failed to remove email from whitelist");
       throw err;
     }
   };
@@ -96,18 +108,23 @@ export function WhitelistProvider({ children }: { children: ReactNode }) {
       
       if (error) throw error;
       await fetchWhitelistedEmails();
-    } catch (err: any) {
+    } catch (err) {
       console.error("Error updating email status:", err);
-      setError(err.message || "Failed to update email status");
+      setError(typeof err === 'object' && err !== null && 'message' in err 
+        ? String((err as ErrorWithMessage).message) 
+        : "Failed to update email status");
       throw err;
     }
   };
 
+  // Use the fetchWhitelistedEmails function for refreshWhitelist
   const refreshWhitelist = fetchWhitelistedEmails;
 
   useEffect(() => {
+    // Now we can include fetchWhitelistedEmails in the dependency array
+    // without causing infinite rerenders because it's memoized with useCallback
     fetchWhitelistedEmails();
-  }, []);
+  }, [fetchWhitelistedEmails]);
 
   return (
     <WhitelistContext.Provider

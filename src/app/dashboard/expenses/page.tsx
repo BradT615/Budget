@@ -6,11 +6,17 @@ import ExpenseList from "./components/expense-list";
 import AddExpenseDialog from "./components/add-expense-dialog";
 import { getExpenses } from "./actions/expenses";
 import { Suspense } from "react";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Expenses | Budget Tracker",
+  description: "Manage your expenses",
+};
 
 export default async function ExpensesPage({
   searchParams,
 }: {
-  searchParams?: { [key: string]: string | string[] | undefined };
+  searchParams: { [key: string]: string | string[] | undefined };
 }) {
   // Get expenses data
   const { data: expenses, error } = await getExpenses();

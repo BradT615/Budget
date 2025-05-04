@@ -173,12 +173,12 @@ export default async function DashboardPage() {
             <CardContent>
               {/* Ensure chart container doesn't overflow */}
               <Tabs defaultValue="weekly" className="h-80">
-                <TabsList>
-                  <TabsTrigger value="weekly">Weekly</TabsTrigger>
-                  <TabsTrigger value="monthly">Monthly</TabsTrigger>
-                  <TabsTrigger value="6month">6 Months</TabsTrigger>
-                  <TabsTrigger value="yearly">Yearly</TabsTrigger>
-                </TabsList>
+              <TabsList>
+  <TabsTrigger value="weekly" className="hover:bg-[#c0c3cc] dark:hover:bg-[#2d3143]">Weekly</TabsTrigger>
+  <TabsTrigger value="monthly" className="hover:bg-[#c0c3cc] dark:hover:bg-[#2d3143]">Monthly</TabsTrigger>
+  <TabsTrigger value="6month" className="hover:bg-[#c0c3cc] dark:hover:bg-[#2d3143]">6 Months</TabsTrigger>
+  <TabsTrigger value="yearly" className="hover:bg-[#c0c3cc] dark:hover:bg-[#2d3143]">Yearly</TabsTrigger>
+</TabsList>
                 <TabsContent value="weekly" className="h-full">
                   <OverviewChart period="weekly" />
                 </TabsContent>

@@ -4,11 +4,7 @@ import { redirect } from 'next/navigation'
 import EmailWhitelistManager from "./components/email-whitelist-manager";
 import AdminUsersManager from "./components/admin-users-manager";
 
-export default async function AdminPage({
-  searchParams,
-}: {
-  searchParams?: Record<string, string>;
-}) {
+export default async function AdminPage() {
   const supabase = await createClient()
   
   // Get the authenticated user

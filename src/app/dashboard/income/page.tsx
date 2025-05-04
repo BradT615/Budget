@@ -6,11 +6,7 @@ import IncomeList from "./components/income-list";
 import AddIncomeDialog from "./components/add-income-dialog";
 import { getIncomes } from "./actions/income";
 
-export default async function IncomePage({
-  searchParams,
-}: {
-  searchParams?: Record<string, string>;
-}) {
+export default async function IncomePage() {
   // Get income data
   const { data: incomes, error } = await getIncomes();
   

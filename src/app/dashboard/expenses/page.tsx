@@ -7,11 +7,11 @@ import AddExpenseDialog from "./components/add-expense-dialog";
 import { getExpenses } from "./actions/expenses";
 import { Suspense } from "react";
 
-interface ExpensesPageProps {
-  searchParams?: { edit?: string }
-}
-
-export default async function ExpensesPage({ searchParams }: ExpensesPageProps) {
+export default async function ExpensesPage({
+  searchParams,
+}: {
+  searchParams?: { edit?: string };
+}) {
   // Get expenses data
   const { data: expenses, error } = await getExpenses();
   

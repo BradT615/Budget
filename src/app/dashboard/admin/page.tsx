@@ -1,9 +1,14 @@
+// src/app/dashboard/admin/page.tsx
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import EmailWhitelistManager from "./components/email-whitelist-manager";
 import AdminUsersManager from "./components/admin-users-manager";
 
-export default async function AdminPage() {
+export default async function AdminPage({
+  searchParams,
+}: {
+  searchParams?: Record<string, string>;
+}) {
   const supabase = await createClient()
   
   // Get the authenticated user

@@ -26,7 +26,7 @@ type ChartData = {
 export default function OverviewChart({ period }: { period: ChartPeriod }) {
   const [data, setData] = useState<ChartData[]>([]);
   const [loading, setLoading] = useState(true);
-  const [maxValue, setMaxValue] = useState(0);
+  const [yAxisDomain, setYAxisDomain] = useState<[number, number]>([0, 0]);
   const supabase = createClient();
 
   useEffect(() => {
@@ -71,10 +71,46 @@ export default function OverviewChart({ period }: { period: ChartPeriod }) {
             break;
         }
         
-        // Find the max value for the chart scale
-        const allValues = processedData.flatMap(item => [item.income, item.expenses, item.balance]);
-        setMaxValue(Math.max(...allValues) * 1.2); // Add 20% buffer
+        // Calculate appropriate Y-axis domain with nice round numbers
+        const calculateDomain = () => {
+          // Extract all values for income, expenses and balance
+          const allValues = processedData.flatMap(item => [
+            item.income, 
+            item.expenses, 
+            item.balance
+          ]);
+          
+          // Find min value, ensuring 0 is included (or lower if negative values)
+          let minValue = Math.min(0, ...allValues);
+          
+          // Find max value and add 20% padding to top
+          let maxValue = Math.max(...allValues) * 1.2;
+          
+          // Round min and max to nice values
+          // For negative values, round down to nearest multiple of a nice round number
+          if (minValue < 0) {
+            const magnitude = Math.pow(10, Math.floor(Math.log10(Math.abs(minValue))));
+            minValue = Math.floor(minValue / magnitude) * magnitude;
+          }
+          
+          // For max values, round up to nearest nice number
+          const magnitude = Math.pow(10, Math.floor(Math.log10(maxValue)));
+          if (maxValue < 100) {
+            // For small values, round to nearest 10
+            maxValue = Math.ceil(maxValue / 10) * 10;
+          } else if (maxValue < 1000) {
+            // For medium values, round to nearest 100
+            maxValue = Math.ceil(maxValue / 100) * 100;
+          } else {
+            // For large values, round to nearest 1000
+            maxValue = Math.ceil(maxValue / 1000) * 1000;
+          }
+          
+          return [minValue, maxValue] as [number, number];
+        };
         
+        // Set domain and data
+        setYAxisDomain(calculateDomain());
         setData(processedData);
       } catch (error) {
         console.error("Error fetching chart data:", error);
@@ -373,10 +409,32 @@ export default function OverviewChart({ period }: { period: ChartPeriod }) {
       ];
     }
     
-    // Find the max value for the chart scale
+    // Calculate y-axis domain with demo data
     const allValues = demoData.flatMap(item => [item.income, item.expenses, item.balance]);
-    setMaxValue(Math.max(...allValues) * 1.2); // Add 20% buffer
+    let minValue = Math.min(0, ...allValues);
+    let maxValue = Math.max(...allValues) * 1.2;
     
+    // Round min and max to nice values
+    // For negative values, round down to nearest multiple of a nice round number
+    if (minValue < 0) {
+      const magnitude = Math.pow(10, Math.floor(Math.log10(Math.abs(minValue))));
+      minValue = Math.floor(minValue / magnitude) * magnitude;
+    }
+    
+    // For max values, round up to nearest nice number
+    const magnitude = Math.pow(10, Math.floor(Math.log10(maxValue)));
+    if (maxValue < 100) {
+      // For small values, round to nearest 10
+      maxValue = Math.ceil(maxValue / 10) * 10;
+    } else if (maxValue < 1000) {
+      // For medium values, round to nearest 100
+      maxValue = Math.ceil(maxValue / 100) * 100;
+    } else {
+      // For large values, round to nearest 1000
+      maxValue = Math.ceil(maxValue / 1000) * 1000;
+    }
+    
+    setYAxisDomain([minValue, maxValue]);
     setData(demoData);
   };
 
@@ -401,15 +459,29 @@ export default function OverviewChart({ period }: { period: ChartPeriod }) {
       >
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis dataKey="name" />
-        <YAxis domain={[0, maxValue]} />
+        <YAxis 
+          domain={yAxisDomain}
+          tickFormatter={(value) => value.toLocaleString()}
+          tickCount={6}
+          scale="linear"
+          // This ensures nice round numbers on the y-axis
+          allowDataOverflow
+        />
         <Tooltip 
-          formatter={(value: number) => [`${value.toFixed(2)}`, undefined]}
+          formatter={(value: number) => [
+            `${new Intl.NumberFormat('en-US', {
+              style: 'currency',
+              currency: 'USD',
+              minimumFractionDigits: 2
+            }).format(value)}`, 
+            undefined
+          ]}
           labelFormatter={(label) => `${label}`}
         />
         <Legend 
           verticalAlign="bottom" 
           height={36}
-          wrapperStyle={{ bottom: 25, left: 25,  }}
+          wrapperStyle={{ bottom: 25, left: 25 }}
         />
         <ReferenceLine y={0} stroke="#666" />
         <Line type="monotone" dataKey="income" stroke="#4ade80" strokeWidth={2} name="Income" />

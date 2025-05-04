@@ -10,7 +10,9 @@ import {
   CreditCard,
   Settings,
   Shield,
-  X
+  X,
+  ArrowUpDown,
+  Receipt
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
@@ -20,8 +22,9 @@ import Image from "next/image";
 
 const baseNavItems = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { name: "Transactions", href: "/dashboard/transactions", icon: ArrowUpDown },
   { name: "Income", href: "/dashboard/income", icon: DollarSign },
-  { name: "Expenses", href: "/dashboard/expenses", icon: CreditCard },
+  { name: "Expenses", href: "/dashboard/expenses", icon: Receipt },
   { name: "Savings Goals", href: "/dashboard/savings", icon: PiggyBank },
   { name: "Settings", href: "/dashboard/settings", icon: Settings },
 ];

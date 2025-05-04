@@ -5,10 +5,18 @@ import { PlusCircle } from "lucide-react";
 import ExpenseList from "./components/expense-list";
 import AddExpenseDialog from "./components/add-expense-dialog";
 import { getExpenses } from "./actions/expenses";
+import { Suspense } from "react";
 
-export default async function ExpensesPage() {
+interface ExpensesPageProps {
+  searchParams?: { edit?: string }
+}
+
+export default async function ExpensesPage({ searchParams }: ExpensesPageProps) {
   // Get expenses data
   const { data: expenses, error } = await getExpenses();
+  
+  // Check if an expense ID is present in the URL for editing
+  const editId = searchParams?.edit;
   
   return (
     <div className="space-y-6">
@@ -30,7 +38,12 @@ export default async function ExpensesPage() {
       
       <Card className='m-3 sm:m-6'>
         <CardContent className='pt-4'>
-          <ExpenseList expenses={expenses || []} />
+          <Suspense fallback={<div>Loading expenses...</div>}>
+            <ExpenseList 
+              expenses={expenses || []} 
+              editId={editId}
+            />
+          </Suspense>
         </CardContent>
       </Card>
     </div>

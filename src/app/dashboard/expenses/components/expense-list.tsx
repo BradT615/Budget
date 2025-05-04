@@ -18,9 +18,10 @@ import { useRouter } from "next/navigation";
 
 type ExpenseListProps = {
   expenses: Expense[];
+  editId?: string;
 };
 
-export default function ExpenseList({ expenses }: ExpenseListProps) {
+export default function ExpenseList({ expenses, editId }: ExpenseListProps) {
   const [loading, setLoading] = useState(false);
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
@@ -38,6 +39,16 @@ export default function ExpenseList({ expenses }: ExpenseListProps) {
       window.removeEventListener('resize', handleResize);
     };
   }, []);
+  
+  // Handle auto-editing when editId is provided
+  useEffect(() => {
+    if (editId && expenses.length > 0) {
+      const expenseToEdit = expenses.find(expense => expense.id === editId);
+      if (expenseToEdit) {
+        setEditingExpense(expenseToEdit);
+      }
+    }
+  }, [editId, expenses]);
 
   const isMobile = windowWidth < 768;
 

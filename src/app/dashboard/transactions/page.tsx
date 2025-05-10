@@ -3,12 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import TransactionsList from "./components/transactions-list";
 import { getTransactions } from "./actions/transactions";
 
-export default async function TransactionsPage({
-  searchParams,
-}: {
-  // In Next.js 15, searchParams is now handled as a regular object, not a Promise
-  searchParams?: { [key: string]: string | string[] | undefined };
-}) {
+export default async function TransactionsPage() {
   // Get transactions data
   const { data: transactions, error } = await getTransactions();
   

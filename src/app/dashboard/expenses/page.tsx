@@ -7,18 +7,12 @@ import AddExpenseDialog from "./components/add-expense-dialog";
 import { getExpenses } from "./actions/expenses";
 import { Suspense } from "react";
 
-// Define appropriate types for the page props according to Next.js 15
-export interface SearchParams {
-  [key: string]: string | string[] | undefined;
-}
-
-interface ExpensesPageProps {
-  searchParams?: SearchParams;
-}
-
 export default async function ExpensesPage({
   searchParams,
-}: ExpensesPageProps) {
+}: {
+  // In Next.js 15, searchParams is now handled as a regular object, not a Promise
+  searchParams?: { [key: string]: string | string[] | undefined };
+}) {
   // Get expenses data
   const { data: expenses, error } = await getExpenses();
   

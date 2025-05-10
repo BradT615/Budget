@@ -6,18 +6,12 @@ import IncomeList from "./components/income-list";
 import AddIncomeDialog from "./components/add-income-dialog";
 import { getIncomes } from "./actions/income";
 
-// Import the type from expenses page or define it here
-export interface SearchParams {
-  [key: string]: string | string[] | undefined;
-}
-
-interface IncomePageProps {
-  searchParams?: SearchParams;
-}
-
 export default async function IncomePage({
-  searchParams
-}: IncomePageProps = {}) {
+  searchParams,
+}: {
+  // In Next.js 15, searchParams is now handled as a regular object, not a Promise
+  searchParams?: { [key: string]: string | string[] | undefined };
+}) {
   // Get income data
   const { data: incomes, error } = await getIncomes();
   

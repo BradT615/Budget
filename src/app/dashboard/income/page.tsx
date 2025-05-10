@@ -6,19 +6,18 @@ import IncomeList from "./components/income-list";
 import AddIncomeDialog from "./components/add-income-dialog";
 import { getIncomes } from "./actions/income";
 
-export default async function IncomePage(
-  props: {
-    // In Next.js 15, searchParams is now handled as a regular object, not a Promise
-    searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
-  }
-) {
-  const searchParams = await props.searchParams;
+export default async function IncomePage({
+  searchParams,
+}: {
+  // In Next.js 15, searchParams is now handled as a regular object, not a Promise
+  searchParams?: { [key: string]: string | string[] | undefined };
+}) {
   // Get income data
   const { data: incomes, error } = await getIncomes();
-
+  
   // Check if an income ID is present in the URL for editing
   const editId = typeof searchParams?.edit === 'string' ? searchParams.edit : undefined;
-
+  
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between pt-6 px-6">

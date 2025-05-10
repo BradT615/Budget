@@ -1,4 +1,4 @@
-// src/app/dashboard/expenses/components/expense-list.tsx
+// Updated version for src/app/dashboard/expenses/components/expense-list.tsx
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -22,6 +22,8 @@ type ExpenseListProps = {
 };
 
 export default function ExpenseList({ expenses, editId }: ExpenseListProps) {
+  // Component logic remains the same, no changes needed here
+  // since this is a client component that receives regular props
   const [loading, setLoading] = useState(false);
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});

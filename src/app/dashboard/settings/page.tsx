@@ -5,7 +5,12 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import UpdateProfileForm from "./components/update-profile-form";
 import DeleteAccountSection from "./components/delete-account-section";
 
-export default async function SettingsPage() {
+// Define searchParams as a Promise directly
+type SearchParams = Promise<{ [key: string]: string | string[] | undefined } | undefined>;
+
+// Since we're not using searchParams in this component, we can use underscore prefix
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export default async function SettingsPage(_props: { searchParams?: SearchParams }) {
   const supabase = await createClient();
   
   // Get the authenticated user

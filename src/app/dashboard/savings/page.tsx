@@ -6,7 +6,12 @@ import SavingsGoalsList from "./components/savings-goals-list";
 import AddSavingsGoalDialog from "./components/add-savings-goal-dialog";
 import { getSavingsGoals } from "./actions/savings-goals";
 
-export default async function SavingsPage() {
+// Define searchParams as a Promise directly
+type SearchParams = Promise<{ [key: string]: string | string[] | undefined } | undefined>;
+
+// Since we're not using searchParams in this component, we can use underscore prefix
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export default async function SavingsPage(_props: { searchParams?: SearchParams }) {
   // Get savings goals data
   const { data: goals, error } = await getSavingsGoals();
   

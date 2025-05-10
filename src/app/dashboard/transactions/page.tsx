@@ -3,7 +3,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import TransactionsList from "./components/transactions-list";
 import { getTransactions } from "./actions/transactions";
 
-export default async function TransactionsPage() {
+// Define searchParams as a Promise directly
+type SearchParams = Promise<{ [key: string]: string | string[] | undefined } | undefined>;
+
+// Since we're not using searchParams in this component, we can use underscore prefix
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export default async function TransactionsPage(_props: { searchParams?: SearchParams }) {
   // Get transactions data
   const { data: transactions, error } = await getTransactions();
   

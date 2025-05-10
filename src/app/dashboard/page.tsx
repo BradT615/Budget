@@ -10,7 +10,12 @@ import { getSavingsGoals } from "./savings/actions/savings-goals";
 import { Progress } from "@/components/ui/progress";
 import { ArrowUpRight, ArrowDownRight, DollarSign, Target } from "lucide-react";
 
-export default async function DashboardPage() {
+// Define searchParams as a Promise directly
+type SearchParams = Promise<{ [key: string]: string | string[] | undefined } | undefined>;
+
+// Since we're not using searchParams in this component, we can use underscore prefix
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export default async function DashboardPage(_props: { searchParams?: SearchParams }) {
   const supabase = await createClient();
   
   // Get the authenticated user

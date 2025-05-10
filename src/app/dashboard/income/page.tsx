@@ -6,9 +6,23 @@ import IncomeList from "./components/income-list";
 import AddIncomeDialog from "./components/add-income-dialog";
 import { getIncomes } from "./actions/income";
 
-export default async function IncomePage() {
+// Import the type from expenses page or define it here
+export interface SearchParams {
+  [key: string]: string | string[] | undefined;
+}
+
+interface IncomePageProps {
+  searchParams?: SearchParams;
+}
+
+export default async function IncomePage({
+  searchParams
+}: IncomePageProps = {}) {
   // Get income data
   const { data: incomes, error } = await getIncomes();
+  
+  // Check if an income ID is present in the URL for editing
+  const editId = typeof searchParams?.edit === 'string' ? searchParams.edit : undefined;
   
   return (
     <div className="space-y-6">
@@ -30,7 +44,7 @@ export default async function IncomePage() {
       
       <Card className='m-3 sm:m-6'>
         <CardContent className='pt-4'>
-          <IncomeList incomes={incomes || []} />
+          <IncomeList incomes={incomes || []} editId={editId} />
         </CardContent>
       </Card>
     </div>

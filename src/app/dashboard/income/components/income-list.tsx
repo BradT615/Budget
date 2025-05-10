@@ -18,9 +18,10 @@ import { Income, deleteIncome } from "../actions/income";
 
 type IncomeListProps = {
   incomes: Income[];
+  editId?: string;
 };
 
-export default function IncomeList({ incomes }: IncomeListProps) {
+export default function IncomeList({ incomes, editId }: IncomeListProps) {
   const [loading, setLoading] = useState(false);
   const [editingIncome, setEditingIncome] = useState<Income | null>(null);
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
@@ -38,6 +39,16 @@ export default function IncomeList({ incomes }: IncomeListProps) {
       window.removeEventListener('resize', handleResize);
     };
   }, []);
+  
+  // Handle auto-editing when editId is provided
+  useEffect(() => {
+    if (editId && incomes.length > 0) {
+      const incomeToEdit = incomes.find(income => income.id === editId);
+      if (incomeToEdit) {
+        setEditingIncome(incomeToEdit);
+      }
+    }
+  }, [editId, incomes]);
 
   const isMobile = windowWidth < 768;
 

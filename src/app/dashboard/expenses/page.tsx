@@ -6,18 +6,19 @@ import ExpenseList from "./components/expense-list";
 import AddExpenseDialog from "./components/add-expense-dialog";
 import { getExpenses } from "./actions/expenses";
 import { Suspense } from "react";
-import { Metadata } from "next";
 
-export const metadata: Metadata = {
-  title: "Expenses | Budget Tracker",
-  description: "Manage your expenses",
-};
+// Define appropriate types for the page props according to Next.js 15
+export interface SearchParams {
+  [key: string]: string | string[] | undefined;
+}
+
+interface ExpensesPageProps {
+  searchParams?: SearchParams;
+}
 
 export default async function ExpensesPage({
   searchParams,
-}: {
-  searchParams: { [key: string]: string | string[] | undefined };
-}) {
+}: ExpensesPageProps) {
   // Get expenses data
   const { data: expenses, error } = await getExpenses();
   

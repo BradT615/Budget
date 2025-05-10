@@ -7,18 +7,19 @@ import AddExpenseDialog from "./components/add-expense-dialog";
 import { getExpenses } from "./actions/expenses";
 import { Suspense } from "react";
 
-export default async function ExpensesPage({
-  searchParams,
-}: {
-  // In Next.js 15, searchParams is now handled as a regular object, not a Promise
-  searchParams?: { [key: string]: string | string[] | undefined };
-}) {
+export default async function ExpensesPage(
+  props: {
+    // In Next.js 15, searchParams is now handled as a regular object, not a Promise
+    searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
+  }
+) {
+  const searchParams = await props.searchParams;
   // Get expenses data
   const { data: expenses, error } = await getExpenses();
-  
+
   // Check if an expense ID is present in the URL for editing
   const editId = typeof searchParams?.edit === 'string' ? searchParams.edit : undefined;
-  
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between pt-6 px-6">
